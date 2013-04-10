@@ -176,26 +176,29 @@ def vdisp(m200,z,h=0.7,Om=0.3,Ol=0.7,Or=0,Ok=0):
     '''
     return 10**(numpy.log10(1080)+0.352*numpy.log10(H(z,h,Om,Ol,Or,Ok)/100.*m200/10^15))
 
-def m200(vdisp,z,sigma_vdisp=None,h=0.7,Om=0.3,Ol=0.7,Or=0,Ok=0):
-    '''
-    Usage:
-        mvir(vdisp,z,sigma_vdisp,h=0.7,Om=0.3,Ol=0.7,Or=0,Ok=0)
-    vdisp is the velocity dispersion of the mass in km/s
-    mvir is the viral mass of the object in solar mass units.
-    z is the redshift of the mass.
-    
-    Uses the relation in: Evrard, A.E. et al., 2008. Virial Scaling of Massive Dark Matter Halos: Why Clusters Prefer a High Normalization Cosmology. The Astrophysical Journal, 672(1), pp.122
+"""
+Copyright (c) 2012, William A. Dawson
+All rights reserved.
 
-    Returns the viral mass of the object in solar mass units.
-    '''
-    M200 = 10**15/(H(z,h,Om,Ol,Or,Ok)/100.)*(vdisp/1080.)**(1/0.352)
-    if sigma_vdisp == None:
-        return M200
-    else:
-        sigma_M200 = sigma_vdisp*(10**15/(H(z,h,Om,Ol,Or,Ok)/100.)*
-                                  (vdisp/1080.)**(1/0.352)/(0.352*vdisp))
-        return M200,sigma_M200
-                                  
-                                  
-                                  
-    
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the University of California, Davis nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
