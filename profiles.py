@@ -199,7 +199,7 @@ def filament_mubar(mu_0,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
 
     return mu_0 * r_s**2 * numpy.log(r/r_s+numpy.sqrt(1.+(r/r_s)**2)) / (2.*r)
 
-"""
+'''
 Copyright (c) 2012, William A. Dawson
 All rights reserved.
 
@@ -224,4 +224,4 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""
+'''
