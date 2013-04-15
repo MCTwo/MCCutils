@@ -7,9 +7,9 @@ Many of the cluster profiles come from Keiichi Umetsu's review article.
 The filament profile comes from the Colberg et al. 2005 paper.
 '''
 from __future__ import division
+import sys
 import numpy
 import cosmo
-import sys
 
 # CONSTANTS
 kginMsun = 1.98892*10**30 #kg in a solar mass
@@ -147,19 +147,18 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     rho_s = del_c*rho_cr
     return del_c, r_s, r_200, c, rho_s
 
-def nfwM200(c200, z, h_scale):
+def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
     '''
     Author: Karen Ng
     This function gives the M200 based on c200 by making use of the mass-
     concentration scaling relationship giveen by Duffy et. al. 2008
-    This applies for full halo samples with redshift from 0 - 2 
+    input:
+    conc = concentration parameter
+    A200, B200 , C200 = suitable parameters from Table 1 of Duffy et. al. 2008
+    z = redshift
     '''
-    #hard paramters from Duffy et. al.
-    A = 5.71 
-    B = -0.084
-    C = -0.47
-    M_pivot = 2.0e12 #in solar mass 
-    return M_pivot*(c200/A/(1+z)**C)**(1/B)
+    M_pivot = 2.0e12 / h_scale*kginMsun  #in solar mass 
+    return M_pivot*(c200/A/(1+z)**C200)**(1/B200)
 
 # Filament Profile
 
