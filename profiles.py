@@ -158,7 +158,7 @@ def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
     z = redshift
     '''
     M_pivot = 2.0e12 / h_scale*kginMsun  #in solar mass 
-    return M_pivot*(c200/A/(1+z)**C200)**(1/B200)
+    return M_pivot*(conc/A200/(1+z)**C200)**(1/B200)
 
 # Filament Profile
 
