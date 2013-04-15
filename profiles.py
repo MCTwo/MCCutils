@@ -117,7 +117,7 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     #calculate the r_200 radius
     r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
     #calculate the concentration parameter based on Duffy et al. 2008
-    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.097)
+    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.084)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
     return del_c, r_s
@@ -141,7 +141,7 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     #calculate the r_200 radius
     r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
     #calculate the concentration parameter based on Duffy et al. 2008
-    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.097)
+    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.084)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
     rho_s = del_c*rho_cr
