@@ -65,8 +65,6 @@ def nfw_Sigma(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
         f = f[0]
     return 2*del_c*rho_crit*r_s*f*minMpc
 
-
-
 def nfw_Sigmabar(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     '''
     NFW average surface mass density within radius r [kg/m^2]. Note that this
@@ -149,16 +147,16 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
 
 def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
     '''
-    Author: Karen Ng
+    Author: Karen Y. Ng
     This function gives the M200 based on c200 by making use of the mass-
-    concentration scaling relationship giveen by Duffy et. al. 2008
+    concentration scaling relationship given by Duffy et. al. 2008
     input:
     conc = concentration parameter
     A200, B200 , C200 = suitable parameters from Table 1 of Duffy et. al. 2008
     z = redshift
     '''
-    M_pivot = 2.0e12 / h_scale*kginMsun  #in solar mass 
-    return M_pivot*(conc/A200/(1+z)**C200)**(1/B200)
+    M_pivot = (2.0e12 / h_scale)  #in terms of solar mass 
+    return M_pivot*(conc/A200/((1.0+z)**C200))**(1.0/B200)
 
 # Filament Profile
 
