@@ -107,15 +107,19 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     Outputs:
     del_c, r_s = characteristic overdensity of the CDM halo, scale radius of 
     the halo (Mpc)
-    
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
+    #for full samples profile
+    A200 = 5.71
+    B200 = -0.084
+    C200 = -0.47
     M_200 *= 1e14
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
     r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
     #calculate the concentration parameter based on Duffy et al. 2008
-    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.097)
+    #c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.097)
+    c = A200/(1+z)**np.abs(C200)*(M_200*h_scale/2e12)**(B200)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
     return del_c, r_s
@@ -154,9 +158,13 @@ def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
     conc = concentration parameter
     A200, B200 , C200 = suitable parameters from Table 1 of Duffy et. al. 2008
     z = redshift
+    output:
+    the M200 with units of solar mass 
     '''
-    M_pivot = (2.0e12 / h_scale)  #in terms of solar mass 
-    return M_pivot*(conc/A200/((1.0+z)**C200))**(1.0/B200)
+    M_pivot = (2.0e12*h_scale)  #have to be in terms of solar mass
+    #output is also in solar mass 
+    #when comparing to literature have to multiple by h_scale 
+    return M_pivot*(conc/A200/((1.0+z)**C200))**(1.0/B200) 
 
 # Filament Profile
 
