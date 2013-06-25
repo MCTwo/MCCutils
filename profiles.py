@@ -100,10 +100,14 @@ def nfw_Sigmabar(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
         g = g[0]
     return 4*del_c*rho_crit*r_s*g/x**2*minMpc
 
-def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
+def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0, fix_unit=True):
     '''
     Inputs:
     M_200 = [array of floats; units=e14 M_sun]
+    This can be either in units of e14 M_sun 
+    or 
+
+
     Outputs:
     del_c, r_s = characteristic overdensity of the CDM halo, scale radius of 
     the halo (Mpc)
@@ -113,7 +117,8 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     A200 = 5.71
     B200 = -0.084
     C200 = -0.47
-    M_200 *= 1e14
+    if fix_unit==True:
+        M_200 *= 1e14
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
     r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
@@ -124,7 +129,7 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     r_s = r_200/c
     return del_c, r_s
 
-def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
+def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0,fix_unit=True):
     '''
     This is the same as nfwparam except that it offers extended output.
     Inputs:
@@ -139,7 +144,8 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
     #convert to be in units of e14 M_sun
-    M_200 *= 1e14
+    if fix_unit==True:
+        M_200 *= 1e14
     #for full samples profile
     A200 = 5.71
     B200 = -0.084
