@@ -63,7 +63,7 @@ def lensgeo(zl,zs,h=0.7,Om=0.3,Ol=0.7):
     Dl = angular diameter distance to lens
     Ds = angular diameter distance to source
     Dls = angular diameter distance from lens to source
-    sigcr = Critical surface mass density
+    sigcr = Critical surface mass density in units of kg / Mpc^2 
     """
     if zl >= zs:
         print 'Error: Lens redshift must be smaller than source redshift.'

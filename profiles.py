@@ -118,12 +118,15 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0, fix_unit=True):
     B200 = -0.084
     C200 = -0.47
     if fix_unit==True:
+        print 'nfwparam: using Karen_copy - multiplying by 1e14 '
         M_200 *= 1e14
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
     r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
     #calculate the concentration parameter based on Duffy et al. 2008
     #c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.097)
+    #the h_scale is multiplied because the scaling relationship uses 
+    #a pivotal mass of 2e12 M_sun h_scale^{-1}
     c = A200/(1+z)**numpy.abs(C200)*(M_200*h_scale/2e12)**(B200)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
@@ -145,6 +148,7 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0,fix_unit=True):
     '''
     #convert to be in units of e14 M_sun
     if fix_unit==True:
+        print 'nfwparam: using Karen_copy - multiplying by 1e14 '
         M_200 *= 1e14
     #for full samples profile
     A200 = 5.71
