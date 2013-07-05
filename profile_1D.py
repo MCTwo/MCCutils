@@ -1,3 +1,10 @@
+#-------------------------------------------------------------------------------
+#Author: Karen Yin-Yee Ng <karenyng@ucdavis.edu>
+#Purpose for plotting 1D reduced shear profile of a NFW halo
+#Date: 07/04/2013
+#License: BSD
+#-------------------------------------------------------------------------------
+
 from __future__ import division
 import numpy as np 
 
@@ -41,8 +48,6 @@ def tan_1D_reduced_shear(theta, conc, r_s=np.nan):
     for fitting the concentration parameter and the scale radius r_s 
 
     This is written by adopting the expression in Umetsu
-    Note that unlike Will 's code this does not depend on the galaxy 
-    catalog 
 
     theta = range of radius of the halo that we 're considering, unit in arcsec
     conc = concentration parameter at the given radius 
@@ -122,7 +127,6 @@ def tan_1D_reduced_shear(theta, conc, r_s=np.nan):
                             lambda x: np.log(x/2.)+1.,
                             lambda x: np.log(x/2.)+2./np.sqrt(x**2.-1.)*np.arctan(np.sqrt(x-1.)/np.sqrt(x+1.))])
     kappa_bar = 2.*kappa_s/x**2.*g_theta
-    #plt.plot(fx*theta_s,kappa)
     azim_kappa, azim_bins = azimuthal_avg_shear_in_bins(kappa, fx, np.min(x), np.max(x)+x[1]-x[0], x[1]-x[0]) 
    
     red_shear= (kappa_bar-azim_kappa)/(1-azim_kappa)
