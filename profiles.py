@@ -100,13 +100,10 @@ def nfw_Sigmabar(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
         g = g[0]
     return 4*del_c*rho_crit*r_s*g/x**2*minMpc
 
-def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0, fix_unit=True):
+def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     '''
     Inputs:
-    M_200 = [array of floats; units=e14 M_sun]
-    This can be either in units of e14 M_sun 
-    or 
-
+    M_200 = [array of floats; units=1e14 M_sun]
 
     Outputs:
     del_c, r_s = characteristic overdensity of the CDM halo, scale radius of 
@@ -117,9 +114,6 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0, fix_unit=True):
     A200 = 5.71
     B200 = -0.084
     C200 = -0.47
-    if fix_unit==True:
-        print 'nfwparam: using Karen_copy - multiplying by 1e14 '
-        M_200 *= 1e14
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
     r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
