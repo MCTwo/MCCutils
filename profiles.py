@@ -121,7 +121,7 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     #c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.097)
     #the h_scale is multiplied because the scaling relationship uses 
     #a pivotal mass of 2e12 M_sun h_scale^{-1}
-    c = A200/(1+z)**numpy.abs(C200)*(M_200*h_scale/2e12)**(B200)
+    c = A200/(1+z)**numpy.abs(C200)*(M_200*h_scale/2e-2)**(B200)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
     return del_c, r_s
