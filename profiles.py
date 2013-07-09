@@ -7,9 +7,9 @@ Many of the cluster profiles come from Keiichi Umetsu's review article.
 The filament profile comes from the Colberg et al. 2005 paper.
 '''
 from __future__ import division
+import sys
 import numpy
 import cosmo
-import sys
 
 # CONSTANTS
 kginMsun = 1.98892*10**30 #kg in a solar mass
@@ -65,8 +65,6 @@ def nfw_Sigma(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
         f = f[0]
     return 2*del_c*rho_crit*r_s*f*minMpc
 
-
-
 def nfw_Sigmabar(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     '''
     NFW average surface mass density within radius r [kg/m^2]. Note that this
@@ -105,21 +103,24 @@ def nfw_Sigmabar(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
 def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     '''
     Inputs:
-    M_200 = [array of floats; units=e14 M_sun]
+    M_200 = [array of floats; units=1e14 M_sun]
+
     Outputs:
     del_c, r_s = characteristic overdensity of the CDM halo, scale radius of 
     the halo (Mpc)
-    
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
-    M_200 *= 1e14
-    print 'profiles.nfwparam:mass is in terms of {0} M_sun'.format(M_200)
+    #calculate the concentration parameter based on Duffy et al. 2008
+    #for full samples profile
+    A200 = 5.71
+    B200 = -0.084
+    C200 = -0.47
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
-    r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
-    #calculate the concentration parameter based on Duffy et al. 2008
-    #c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.084)
-    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e-2)**(-0.084)
+    r_200 = (M_200*1e14*3/(4*numpy.pi*200*rho_cr))**(1/3.)
+    #the h_scale is multiplied because the scaling relationship uses 
+    # 2e-2 h_scale^{-1}  using 1e14 Msun as unit 
+    c = A200/(1+z)**numpy.abs(C200)*(M_200*h_scale/2e-2)**(B200)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
     return del_c, r_s
@@ -138,17 +139,37 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
-    M_200 *= 1e14
-    print 'profiles.nfwparam_extended:mass is in terms of {0} M_sun'.format(M_200)
+    #calculate the concentration parameter based on Duffy et al. 2008
+    #for full samples profile
+    A200 = 5.71
+    B200 = -0.084
+    C200 = -0.47
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
-    r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
-    #calculate the concentration parameter based on Duffy et al. 2008
-    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.084)
+    r_200 = (M_200*1e14*3/(4*numpy.pi*200*rho_cr))**(1/3.)
+    c = A200/(1+z)**numpy.abs(C200)*(M_200*h_scale/2e-2)**(B200)
+    #c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.084)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
     rho_s = del_c*rho_cr
     return del_c, r_s, r_200, c, rho_s
+
+def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
+    '''
+    Author: Karen Y. Ng
+    This function gives the M200 based on c200 by making use of the mass-
+    concentration scaling relationship given by Duffy et. al. 2008
+    input:
+    conc = concentration parameter
+    A200, B200 , C200 = suitable parameters from Table 1 of Duffy et. al. 2008
+    z = redshift
+    output:
+    the M200 with units of solar mass 
+    '''
+    M_pivot = (2.0e12*h_scale)  #have to be in terms of solar mass
+    #output is also in solar mass 
+    #when comparing to literature have to multiple by h_scale 
+    return M_pivot*(conc/A200/((1.0+z)**C200))**(1.0/B200) 
 
 # Filament Profile
 
@@ -188,7 +209,7 @@ def filament_mubar(mu_0,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
 
     return mu_0 * r_s**2 * numpy.log(r/r_s+numpy.sqrt(1.+(r/r_s)**2)) / (2.*r)
 
-"""
+'''
 Copyright (c) 2012, William A. Dawson
 All rights reserved.
 
@@ -213,4 +234,4 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""
+'''
