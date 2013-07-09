@@ -113,11 +113,13 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
     M_200 *= 1e14
+    print 'profiles.nfwparam:mass is in terms of {0} M_sun'.format(M_200)
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
     r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
     #calculate the concentration parameter based on Duffy et al. 2008
-    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.084)
+    #c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.084)
+    c = 5.71/(1+z)**0.47*(M_200*h_scale/2e-2)**(-0.084)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
     return del_c, r_s
@@ -137,6 +139,7 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
     M_200 *= 1e14
+    print 'profiles.nfwparam_extended:mass is in terms of {0} M_sun'.format(M_200)
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
     r_200 = (M_200*3/(4*numpy.pi*200*rho_cr))**(1/3.)
