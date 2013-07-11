@@ -65,9 +65,9 @@ def tan_1D_reduced_shear(theta, conc, r_s=np.nan):
     halo coord 2 
     '''
     #parameters for El Gordo 
-    z_halo = 0.89
-    z_source = 1.22
-    beta = 0.216
+    z_halo = 0.87
+    z_source = 1.318
+    beta = 0.258
 
     
     #Cosmological parameters 
