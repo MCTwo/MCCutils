@@ -110,6 +110,7 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     the halo (Mpc)
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
+    #calculate the concentration parameter based on Duffy et al. 2008
     #for full samples profile
     A200 = 5.71
     B200 = -0.084
@@ -117,16 +118,8 @@ def nfwparam(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
     r_200 = (M_200*1e14*3/(4*numpy.pi*200*rho_cr))**(1/3.)
-    #calculate the concentration parameter based on Duffy et al. 2008
-    #c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.097)
     #the h_scale is multiplied because the scaling relationship uses 
-    #---
-    #the pivotal mass should have a value of 2e12 h_scale^{-1}
-    #if using M_sun as unit
-    #---
-    #the pivotal mass should have a value of 2e-2 h_scale^{-1}
-    #if using 1e14 Msun as unit 
-    #---
+    # 2e-2 h_scale^{-1}  using 1e14 Msun as unit 
     c = A200/(1+z)**numpy.abs(C200)*(M_200*h_scale/2e-2)**(B200)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
     r_s = r_200/c
@@ -146,9 +139,7 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
-    #convert to be in units of e14 M_sun
-    #if fix_unit==True:
-    #    print 'nfwparam: using Karen_copy - multiplying by 1e14 '
+    #calculate the concentration parameter based on Duffy et al. 2008
     #for full samples profile
     A200 = 5.71
     B200 = -0.084
@@ -156,7 +147,6 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     rho_cr = cosmo.rhoCrit(z,h_scale,Om,Ol,Or)/kginMsun*minMpc**3
     #calculate the r_200 radius
     r_200 = (M_200*1e14*3/(4*numpy.pi*200*rho_cr))**(1/3.)
-    #calculate the concentration parameter based on Duffy et al. 2008
     c = A200/(1+z)**numpy.abs(C200)*(M_200*h_scale/2e-2)**(B200)
     #c = 5.71/(1+z)**0.47*(M_200*h_scale/2e12)**(-0.084)
     del_c = 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
@@ -164,7 +154,7 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     rho_s = del_c*rho_cr
     return del_c, r_s, r_200, c, rho_s
 
-def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
+def nfwM200(conc, A200, B200, C200, z, h_scale=0.7):
     '''
     Author: Karen Y. Ng
     This function gives the M200 based on c200 by making use of the mass-
@@ -174,11 +164,12 @@ def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
     A200, B200 , C200 = suitable parameters from Table 1 of Duffy et. al. 2008
     z = redshift
     output:
-    the M200 with units of solar mass 
+    the M200 with units of solar mass  
     '''
-    M_pivot = (2.0e12*h_scale)  #have to be in terms of solar mass
+    M_pivot = (2.0e12/h_scale)  #have to be in terms of solar mass
     #output is also in solar mass 
-    #when comparing to literature have to multiple by h_scale 
+    #when comparing to literature sometimes have to multiply by h_scale
+    #depending on the unit
     return M_pivot*(conc/A200/((1.0+z)**C200))**(1.0/B200) 
 
 # Filament Profile

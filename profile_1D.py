@@ -7,6 +7,7 @@
 
 from __future__ import division
 import numpy as np 
+import cosmo
 
 def azimuthal_avg_shear_in_bins(k,x,startbin=0,endbin=10,b_width=1):
     '''
