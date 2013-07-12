@@ -6,6 +6,7 @@
 #-------------------------------------------------------------------------------
 
 from __future__ import division
+import cosmo
 import numpy as np 
 
 def azimuthal_avg_shear_in_bins(k,x,startbin=0,endbin=10,b_width=1):
@@ -36,8 +37,13 @@ def azimuthal_avg_shear_in_bins(k,x,startbin=0,endbin=10,b_width=1):
     for i in range(bins):  
         #only look at values within each bin within each iteration 
         temp_mask = np.logical_and(red_x>= bin_edge[i], red_x<bin_edge[i+1])
-        temp_k = red_k[temp_mask]
+        if red_k[temp_mask].size==0:
+            temp_k = 0 
+        else:
+            temp_k = red_k[temp_mask]
         #average the e1_pix value within this bin
+        if np.isnan(np.mean(temp_k)): 
+            raise ValueError('NaN encountered')
         azim_kappa[i] = np.mean(temp_k)
         #print '# of data point in this bin = ',len(temp_k), ',bin = ',(bin_edge[i]+bin_edge[i+1] )/2., ' bin_array=',bin_array[i]
     return azim_kappa, bin_array
@@ -55,7 +61,8 @@ def tan_1D_reduced_shear(theta, conc, r_s=np.nan):
     r_s = scale radius of the NFW profile (Mpc)
     z_halo = halo redshift 
 
-    ##cosmological parameters are written within the function
+    ### WARNING 
+    ### cosmological parameters are written within the function
 
     h_scale = hubble scale H = h*100 km/s / Mpc 
     Om = matter energy density 
@@ -63,6 +70,11 @@ def tan_1D_reduced_shear(theta, conc, r_s=np.nan):
     Or radiation energy density 
     halo coord 1 
     halo coord 2 
+
+    z_halo = redshift of the lens  
+    z_source = redshift of the source galaxies
+    beta = ratio of D_LS and D_S see James Jee 's paper for exact def 
+
     '''
     #parameters for El Gordo 
     z_halo = 0.87
@@ -71,8 +83,8 @@ def tan_1D_reduced_shear(theta, conc, r_s=np.nan):
 
     
     #Cosmological parameters 
-    print "profile_1D.tan_1D_reduced_shear: this func uses its own " 
-    print "cosmological parameters"
+    #print "profile_1D.tan_1D_reduced_shear: this func uses its own " 
+    #print "cosmological parameters"
     Om = 0.3
     Ol = 0.7
     Or = 0.0
@@ -112,10 +124,10 @@ def tan_1D_reduced_shear(theta, conc, r_s=np.nan):
     x = theta / theta_s 
 
     #write an array with finer bins than x 
-    fx = np.arange(np.min(x),np.max(x),(x[1]-x[0])/15.)
+    fx = x #np.arange(np.min(x),np.max(x),(x[1]-x[0])/10.)
   
     #code the expression for kappa as a function of x
-    print kappa_s
+    #print kappa_s
     func_kappa0 = lambda fx: kappa_s/(1-fx**2.)*(-1.+2./np.sqrt(1.-fx**2.)*np.arctanh(np.sqrt(1.-fx)/np.sqrt(1.+fx)))
     func_kappa1 = lambda fx: kappa_s*1./3.
     func_kappa2 = lambda fx: kappa_s/(fx**2.-1)*(1.-2./np.sqrt(fx**2.-1.)*np.arctan(np.sqrt(fx-1.)/np.sqrt(fx+1.)))
@@ -123,12 +135,21 @@ def tan_1D_reduced_shear(theta, conc, r_s=np.nan):
     kappa = np.piecewise(fx,[fx<1.0, fx==1.0, fx>1.0],
                   [func_kappa0,func_kappa1,func_kappa2])
 
-    g_theta = np.piecewise(x, [x<1.0, x==1.0, x>1.0],[lambda x: np.log(x/2.)+2./np.sqrt(1-x**2)*np.arctanh(np.sqrt(1-x)/np.sqrt(1+x)),
+    g_theta = np.piecewise(x, [x<1.0, x==1.0, x>1.0],
+                           [lambda x: np.log(x/2.)+2./np.sqrt(1-x**2)*np.arctanh(np.sqrt(1-x)/np.sqrt(1+x)),
                             lambda x: np.log(x/2.)+1.,
                             lambda x: np.log(x/2.)+2./np.sqrt(x**2.-1.)*np.arctan(np.sqrt(x-1.)/np.sqrt(x+1.))])
     kappa_bar = 2.*kappa_s/x**2.*g_theta
-    azim_kappa, azim_bins = azimuthal_avg_shear_in_bins(kappa, fx, np.min(x), np.max(x)+x[1]-x[0], x[1]-x[0]) 
+    azim_kappa = kappa #, azim_bins = azimuthal_avg_shear_in_bins(kappa, fx, np.min(x), np.max(x)+x[1]-x[0], x[1]-x[0]) 
    
+    #print 'bins are ', x
+    #print 'azim_bins are ', azim_bins 
+    #print 'size of kappa_bar is ', kappa_bar.size
+    #print 'size of azim_kappa is ', azim_kappa.size
+    #print 'kappa_bar is ', kappa_bar
+    #print 'azim_kappa is ', azim_kappa
+
     red_shear= (kappa_bar-azim_kappa)/(1-azim_kappa)
+
     
     return red_shear

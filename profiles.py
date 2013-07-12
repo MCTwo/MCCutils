@@ -154,7 +154,7 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     rho_s = del_c*rho_cr
     return del_c, r_s, r_200, c, rho_s
 
-def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
+def nfwM200(conc, A200, B200, C200, z, h_scale=0.7):
     '''
     Author: Karen Y. Ng
     This function gives the M200 based on c200 by making use of the mass-
@@ -164,11 +164,12 @@ def nfwM200(conc, A200, B200,C200, z, h_scale=0.7):
     A200, B200 , C200 = suitable parameters from Table 1 of Duffy et. al. 2008
     z = redshift
     output:
-    the M200 with units of solar mass 
+    the M200 with units of solar mass  
     '''
-    M_pivot = (2.0e12*h_scale)  #have to be in terms of solar mass
+    M_pivot = (2.0e12/h_scale)  #have to be in terms of solar mass
     #output is also in solar mass 
-    #when comparing to literature have to multiple by h_scale 
+    #when comparing to literature sometimes have to multiply by h_scale
+    #depending on the unit
     return M_pivot*(conc/A200/((1.0+z)**C200))**(1.0/B200) 
 
 # Filament Profile
