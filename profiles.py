@@ -195,6 +195,31 @@ def nfwM200(conc, z, A200=5.71, B200=-0.084, C200=-0.47, h_scale=0.7):
 #    This returns the density of the filament for the input cylindrical radius.
 #    '''
 
+def nfwkappa(del_c,r_s,r,zl,zs,h=0.7,Om=0.3,Ol=0.7,Or=0):
+    '''
+    Computes the convergence for a nfw profile
+    input:
+    del_c = characteristic density
+    r_s = scale radius 
+    r = distance from center of lens
+    zl = lens redshift
+    zs = source redshift
+    '''
+    sigma = nfw_Sigma(del_c, r_s, r, zl)
+    sigma_cr = cosmo.lensgeo(zl,zs)['sigcr']
+    return sigma/sigma_cr 
+
+
+def del_conc(c):
+    '''
+    calculates characteristic overdensity based on given concentration
+    input:
+    c = concentration parameter 
+    output:
+    characteristic overdensity
+    '''
+    return 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
+
 def filament_mu(mu_0,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     '''
     Returns the radial projected linear mass density of the filament at cylindrical radius (i.e.
