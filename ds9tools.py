@@ -513,7 +513,7 @@ def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None)
     F.write('fk5'+'\n')
     for i in numpy.arange(numpy.size(ra)):
         if objid!=None:
-            F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4} text='.format(ra[i],dec[i],style,size,color)+'{'+'{0:0.0f}'.format(objid[i])+'}\n')
+            F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4} text='.format(ra[i],dec[i],style,size,color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
         else:
             F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4}\n'.format(ra[i],dec[i],style,size,color))
     F.close()    
