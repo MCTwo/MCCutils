@@ -7,6 +7,8 @@ from __future__ import division
 import numpy
 from scipy.stats import norm
 from scipy.special import erf
+import sys
+
 def biweightLoc(z,c=6):
     '''
     Biweight statistic Location (similar to the mean).
@@ -69,6 +71,45 @@ def bcpcl(T,T_p,N_sigma):
     T_U = T_p[id_U]
     return T_L, T_U
 
+def weightedrand(array,weights,size=1):
+    '''
+    Given a list of weights [w_0, w_1, ..., w_n-1] corresponding to values in a
+    given array [a_0, a_1, ..., a_n-1] it will return a random draw of array a
+    with probability proportional to weights [w_0, w_1, ..., w_n-1].
+    
+    Input:
+    array = 1D list or array of length n
+    weights = 1D array of length n
+    
+    Output:
+    draw = a single randomly drawn value from array with probability 
+      proportional to weights
+    '''
+    # check to make sure that there are no negative weights
+    if numpy.sum(weights<0) > 1:
+        print 'weightedrandom: error, negative weights are not allowed, exiting'
+        sys.exit()
+    # determine the normalizes cumulative sum of the weight array    
+    w_norm = weights/numpy.sum(weights)
+    w_cumsum = numpy.cumsum(w_norm)
+    # build the sampled array
+    if size == 1:
+        # randomly draw a number from 0-1
+        rand = numpy.random.rand()
+        # find where this random number intersects the cummulative weight function
+        diff = w_cumsum-rand
+        index = (1/diff).argmin()
+        array_rand = array[index]
+    else:
+        array_rand = numpy.zeros(size)
+        # randomly draw a number from 0-1
+        rand = numpy.random.rand(size)
+        for i in range(size):
+            diff = w_cumsum-rand[i]
+            index = (1/diff).argmin()
+            array_rand[i] = array[index]            
+    return array_rand
+    
 """
 Copyright (c) 2012, William A. Dawson
 All rights reserved.
