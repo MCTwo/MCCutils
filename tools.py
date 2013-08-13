@@ -231,15 +231,19 @@ def angendpt(ra1,dec1,d_arcmin,pa):
     d = d_arcmin / 60.0
     phi = pa-90
     delta_dec = -asin(sin(phi*d2r)*sin(d*d2r))/d2r
+    dec2 = dec1+delta_dec
     if d_arcmin >= 0: 
 	if sin(pa*d2r) > 0: sign = 1
 	else: sign = -1
     else:
 	if sin(pa*d2r) > 0: sign = -1
 	else: sign = 1
-    delta_ra = sign*acos(cos(d*d2r)/cos(delta_dec*d2r))/d2r
+    # calculate the delta_ra as if at the equator
+    delta_ra_eq = sign*acos(cos(d*d2r)/cos(delta_dec*d2r))/d2r
+    # now correct for being at dec1
+    x = sin(dec2*d2r)*sin(dec1*d2r)+cos(dec2*d2r)*cos(dec1*d2r)*cos((delta_ra_eq*d2r))
+    delta_ra = sin(delta_ra_eq*d2r)*x/cos(dec2*d2r)/d2r
     ra2 = ra1+delta_ra
-    dec2 = dec1+delta_dec
     return (ra2,dec2)
 
 def readheader(catalog):
