@@ -71,22 +71,21 @@ def bcpcl(T,T_p,N_sigma):
     T_U = T_p[id_U]
     return T_L, T_U
 
-def weightedrand(array,weights,size=1):
+def weightedrand(weights,size=1):
     '''
-    Given a list of weights [w_0, w_1, ..., w_n-1] corresponding to values in a
-    given array [a_0, a_1, ..., a_n-1] it will return a random draw of array a
+    Given a list of weights [w_0, w_1, ..., w_n-1] corresponding to values in an
+    array [a_0, a_1, ..., a_n-1] it will return an index of a random draw
     with probability proportional to weights [w_0, w_1, ..., w_n-1].
     
     Input:
-    array = 1D list or array of length n
     weights = 1D array of length n
     
     Output:
-    draw = a single randomly drawn value from array with probability 
+    index = array index of randomly drawn value with probability 
       proportional to weights
     '''
     # check to make sure that there are no negative weights
-    if numpy.sum(weights<0) > 1:
+    if numpy.sum(weights<0) > 0:
         print 'weightedrandom: error, negative weights are not allowed, exiting'
         sys.exit()
     # determine the normalizes cumulative sum of the weight array    
@@ -99,17 +98,14 @@ def weightedrand(array,weights,size=1):
         # find where this random number intersects the cummulative weight function
         diff = w_cumsum-rand
         index = (1/diff).argmin()
-        array_rand = array[index]
     else:
-        array_rand = numpy.zeros(size)
+        index = numpy.zeros(size,dtype=numpy.uint64)
         # randomly draw a number from 0-1
         rand = numpy.random.rand(size)
         for i in range(size):
             diff = w_cumsum-rand[i]
-            index = (1/diff).argmin()
-            array_rand[i] = array[index]            
-    return array_rand
-    
+            index[i] = (1/diff).argmin()
+    return index    
 """
 Copyright (c) 2012, William A. Dawson
 All rights reserved.
