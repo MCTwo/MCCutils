@@ -171,15 +171,8 @@ def angcomp(ra1,dec1,ra2,dec2,method=3):
     """
     Return the delta_RA and delta_dec (delta = 1-2) components of the angular
     distance between objects.  This is simply an alternate output of the
-    angular_distance function above. Distance is returned as degrees, 
-    and method chooses a more or less accurate way of determining the
-    distance (with 1 being the fastest/least accurate).
+    angular_distance function above. Distance is returned as degrees, and method chooses a more or less accurate way of determining the distance (with 1 being the fastest/least accurate).
     from astorlib.py
-    input:
-    ra1 = ra in degrees 
-    dec1 = dec in degrees 
-    ra2 = ra in degrees 
-    dec2 = dec in dgrees 
     """
     DEGRAD = pi/180.
     import scipy
@@ -220,13 +213,8 @@ def angcomp(ra1,dec1,ra2,dec2,method=3):
 	#if sum(div == 0) != 0: #attempt at making array compatable but doesn't
 	#work for single integers. Note that could just remove this section of
 	#the code since it only here for QA
-    #should be fixed
-    import sys
-    if numpy.size(div)==1:
-        if div == 0:
-	        print 'tools: div = 0, exiting'
-	        sys.exit()
-    elif numpy.size(div)>1 and numpy.any(div==0):
+	if div == 0:
+	    import sys
 	    print 'tools: div = 0, exiting'
 	    sys.exit()
 
@@ -236,8 +224,6 @@ def angendpt(ra1,dec1,d_arcmin,pa):
     '''
     Given an endpoint coordinate (degrees), a distance (arcmin), and a position
     angle (degrees) ccw from the +dec axis it returns the coordinates of the 
-
-
     second endpoint.
     '''
     from math import pi,sin,cos,asin,acos
@@ -307,9 +293,7 @@ def readcatalog(catalog,verbose=True):
         print 'readcatalog: reading in '+catalog
     cat = numpy.loadtxt(catalog)
     if verbose:
-        print 'readcatalog: read in '+catalog+' containing '+\
-                str(numpy.shape(cat)[0])+' rows and '+\
-                str(numpy.shape(cat)[1])+' columns of data'
+        print 'readcatalog: read in '+catalog+' containing '+str(numpy.shape(cat)[0])+' rows and '+str(numpy.shape(cat)[1])+' columns of data'
     return cat
 
 def distancematch(objid_1,ra_1,dec_1,objid_2,ra_2,dec_2,outputfile,tolerance = 2,stampsize=10):

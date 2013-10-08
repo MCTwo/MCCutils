@@ -34,8 +34,7 @@ def nfw_den(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
 
 def nfw_Sigma(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     '''
-    NFW surface mass density at radius theta [kg/m^2]. 
-    Note that this function
+    NFW surface mass density at radius theta [kg/m^2]. Note that this function
     accepts a single number or list for r.
     
     del_c = characteristic overdensity of the CDM halo
@@ -178,9 +177,8 @@ def nfwM200(conc, z, A200=5.71, B200=-0.084, C200=-0.47, h_scale=0.7):
     concentration scaling relationship given by Duffy et. al. 2008
     input:
     conc = concentration parameter
-    z = redshift
     A200, B200 , C200 = suitable parameters from Table 1 of Duffy et. al. 2008
-    h_scale = reduced Hubble parameter 
+    z = redshift
     output:
     the M200 with units of solar mass  
     '''
