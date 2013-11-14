@@ -288,13 +288,17 @@ def read_header(file, verbose = True):
     '''
     This functions helps a pandas read_table / read_csv file to read ttype
     headers
-
     input: 
-    file = string that contains full path to textfile to be read
-    verbose = bool that indicates if message should be printed out
+    file = string, contains full path to textfile to be read
+    verbose = bool, indicates if message should be printed out
+
+    outputs:
+    names = list of strings, names of columns that you can use in pandas
+            dataframe
+    skiprows = integer, number of rows that have been skipped 
 
     Stability: 
-    works, not the fastest nor memory efficient implementation, 
+    works, not the fastest nor memory efficient implementation,
     will not work well for large files, 
     should probably add exception handling
     should probably use REGEX instead hahaha
@@ -302,7 +306,7 @@ def read_header(file, verbose = True):
     import re 
     f = open(file, 'r')
     l = f.readlines()
-    header = []
+    names = []
     skiprows = 0
     for i in range(len(l)):
         a = l[i]
@@ -318,16 +322,16 @@ def read_header(file, verbose = True):
             # too adhoc... haha
             k = h.split(' ')
             h = k[0]
-            header.append(h)
+            names.append(h)
         #try to find all the lines that are comments
         if a.find('#') == 0: 
             skiprows += 1
     if verbose:
         print 'mockCat.read_header:'
-        print '# of header parsed = {0}'.format(len(header))
+        print '# of header parsed = {0}'.format(len(names))
         print 'rows to be skipped = {0}'.format(skiprows)
 
-    return header, skiprows
+    return names, skiprows
 
 
 #class cosmo_param:
