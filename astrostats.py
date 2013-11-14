@@ -37,8 +37,10 @@ def biweightScale(z,c=9):
 def bcpcl(T,T_p,N_sigma):
     '''
     Calculates the bias corrected percent confidence limits.
-    -- Suppose that we have observed data (y1, y2, ..., yn) and use it to estimate a population parameter Q (e.g. Q could be the true mean of the entire population).
-    -- T is a statistic that estimates Q. For example T could be an estimate of the true mean by calculating the mean of  (y1, y2, ..., yn).
+    -- Suppose that we have observed data (y1, y2, ..., yn) and use it to 
+    estimate a population parameter Q (e.g. Q could be the true mean of the
+    entire population).
+    -- T is a statistic that estimates Q. For example T could be an estimate        of the true mean by calculating the mean of  (y1, y2, ..., yn).
     -- Suppose that we create m bootstrap samples (y_p_1j, y_p_2j, ...,j_p_nj) from observed sample  (y1, y2, ..., yn), where j is the jth bootstrap sample.
     -- Then T_p_j is the jth bootstrap observation of T.  For example this could be the mean of (y_p_1j, y_p_2j, ...,j_p_nj).
     

@@ -15,10 +15,11 @@ import tools
 from profiles import nfw_Sigma 
 from profiles import nfw_Sigmabar 
 from profiles import nfwparam
+import numpy.random 
 from nfwMCMC import shear
 
 def makeMockCat(catalog, M_200_pred, coord, ellip_theo, ellip_inststd, 
-          halos, filename, r_bounds = (0, 100), 
+          halos, filename, r_bounds = (0, 1000), noise_sigma = 0.0,
           pix_coord = ('x','y'), h_scale=0.7, Om=0.3, Ol=0.7, Or=0.0, 
           cd = ((-1,0),(0,1)), verbose=False): 
     '''
@@ -177,11 +178,16 @@ def makeMockCat(catalog, M_200_pred, coord, ellip_theo, ellip_inststd,
         #*# Could place a mapping based multiprocessing function here 
         #calculate the expected ellipticity components of each galaxy 
         gamma[mask[:,h],h] = shear(del_c[h],r_s[h],del_r[mask[:,h],h],
-                             z_halo[h],invSigmacr[mask[:,h],h], h_scale,Om,Ol,Or) 
+                             z_halo[h],invSigmacr[mask[:,h],h], h_scale,
+                             Om,Ol,Or) 
     mask_e = numpy.sum(mask,axis=1) != 0 
     #--calculate the expected ellipticities of each galaxy due to all halos 
     e1_exp = numpy.sum(-gamma[mask_e,:]*cos2phi[mask_e,:],axis=1) 
     e2_exp = numpy.sum(-gamma[mask_e,:]*sin2phi[mask_e,:],axis=1)
+
+    e1_exp = addNoise(e1_exp, noise_sigma)
+    e2_exp = addNoise(e2_exp, noise_sigma)
+
 
     #need to check the dimensionality of e1_exp and e2_exp after applying 
     #the masks
@@ -192,6 +198,8 @@ def makeMockCat(catalog, M_200_pred, coord, ellip_theo, ellip_inststd,
                     ellip_theo[1], ellip_theo[2])
     #### this is the way to call a column in the catalog e.g.
     #### cat[:,key['name']
+
+
     
     #----------figure out all the key names --------
     RA_col = key[coord[0]]
@@ -206,8 +214,8 @@ def makeMockCat(catalog, M_200_pred, coord, ellip_theo, ellip_inststd,
 
     #stack all the catalog content together in one big 2D numpy array 
     #remember to apply the mask
-    contents = numpy.vstack([ cat[:,RA_col], cat[:,DEC_col], cat[:,z_col], 
-                            e1_exp, e2_exp, de_exp ]) 
+    contents = numpy.vstack([ cat[:,RA_col], cat[:,DEC_col], 
+                            cat[:,z_col], e1_exp, e2_exp, de_exp ]) 
     contents = contents.transpose()
     writettypeCat(contents, headernames, filename)
    
@@ -244,8 +252,24 @@ def writettypeCat(contents, headernames, filename, verbose = True):
 
     return 
 
+def addNoise(ellip, sigma_noise):
+    '''
+    this function adds Gaussian noise with zero mean and sigma =
+    sigma_noise to the ellipiticies
+    Input: 
+    ellip = numpy array that contains the data that you want to contaminate
+    
+    output: 
+    ellip with noise
+    '''
+    noise = [np.random.randn()*sigma_noise for _ in xrange(ellip.size)]  
+
+    return ellip + noise
+
+
 def process_header(headernames): 
-    ''' This function takes a list of strings
+    ''' 
+    This function takes a list of strings
     and then concatenate the names into the ttype header format 
     Status: stable and debugged 
     ''' 
@@ -259,6 +283,52 @@ def process_header(headernames):
             #print 'handling the last header' 
             headers = headers + '#ttype'+str(i)+' = '+headernames[i] 
     return headers 
+
+def read_header(file, verbose = True):
+    '''
+    This functions helps a pandas read_table / read_csv file to read ttype
+    headers
+
+    input: 
+    file = string that contains full path to textfile to be read
+    verbose = bool that indicates if message should be printed out
+
+    Stability: 
+    works, not the fastest nor memory efficient implementation, 
+    will not work well for large files, 
+    should probably add exception handling
+    should probably use REGEX instead hahaha
+    '''
+    import re 
+    f = open(file, 'r')
+    l = f.readlines()
+    header = []
+    skiprows = 0
+    for i in range(len(l)):
+        a = l[i]
+        #strip all whitespace
+        a = a.strip()
+        #try to only read in the ttype headers
+        if a.find('#ttype') == 0 or a.find('# ttype') == 0: 
+            h = re.split('=', a) 
+            h = h[1].rstrip('\n')
+            h = h.strip()
+            # remove all the comments after the header name
+            # assuming its a catalog from SEXtractor
+            # too adhoc... haha
+            k = h.split(' ')
+            h = k[0]
+            header.append(h)
+        #try to find all the lines that are comments
+        if a.find('#') == 0: 
+            skiprows += 1
+    if verbose:
+        print 'mockCat.read_header:'
+        print '# of header parsed = {0}'.format(len(header))
+        print 'rows to be skipped = {0}'.format(skiprows)
+
+    return header, skiprows
+
 
 #class cosmo_param:
 #    '''
@@ -274,3 +344,5 @@ def process_header(headernames):
 #    def Om(self):
 #
 #    def Or(self):
+
+
