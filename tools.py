@@ -157,12 +157,12 @@ def angdist(ra1,dec1,ra2,dec2):
     Output:
     distance [degrees] angular distance between the two points
     '''
-    from math import pi,sin,cos,acos
+    from numpy import pi,sin,cos,arccos
     d2r = pi / 180.0
     if ra1 < ra2:
         ra1,ra2 = ra2,ra1
     cosdist = cos((ra1-ra2)*d2r)*cos(dec1*d2r)*cos(dec2*d2r)+sin(dec1*d2r)*sin(dec2*d2r)
-    distance = acos(cosdist) / d2r
+    distance = arccos(cosdist) / d2r
     return distance
 
 
@@ -226,7 +226,7 @@ def angendpt(ra1,dec1,d_arcmin,pa):
     angle (degrees) ccw from the +dec axis it returns the coordinates of the 
     second endpoint.
     '''
-    from math import pi,sin,cos,asin,acos
+    from math import pi,sin,cos,asin,arccos
     d2r = pi / 180.0
     d = d_arcmin / 60.0
     phi = pa-90
@@ -239,7 +239,7 @@ def angendpt(ra1,dec1,d_arcmin,pa):
 	if sin(pa*d2r) > 0: sign = -1
 	else: sign = 1
     # calculate the delta_ra as if at the equator
-    delta_ra_eq = sign*acos(cos(d*d2r)/cos(delta_dec*d2r))/d2r
+    delta_ra_eq = sign*arccos(cos(d*d2r)/cos(delta_dec*d2r))/d2r
     # now correct for being at dec1
     x = sin(dec2*d2r)*sin(dec1*d2r)+cos(dec2*d2r)*cos(dec1*d2r)*cos((delta_ra_eq*d2r))
     delta_ra = sin(delta_ra_eq*d2r)*x/cos(dec2*d2r)/d2r
