@@ -13,6 +13,8 @@ def biweightLoc(z,c=6):
     '''
     M = numpy.median(z)
     MAD = numpy.median(numpy.abs(z-M))
+    if MAD==0:
+        raise ZeroDivisionError
     u = (z-M)/(c*MAD)
     mask_u = numpy.abs(u) < 1
     z = z[mask_u]
