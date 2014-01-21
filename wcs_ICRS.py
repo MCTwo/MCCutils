@@ -77,7 +77,6 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
                                 verbose=self.verbose)
 
         if hasattr(self, 'pixcoord'):
-            print "now converting"
             self.convert_pix2world(verbose=self.verbose)
             kwargs['ra'] = self.wcs_coord[0]
             kwargs['dec'] = self.wcs_coord[1]
@@ -86,7 +85,8 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
         else:
             # kluegy way of incorporting optional parameters
             ICRS.__init__(self, *args, **kwargs)
-            self.convert_world2pix(verbose=self.verbose)
+            if hasattr(self, 'wcs'):
+                self.convert_world2pix(verbose=self.verbose)
 
 
 
@@ -128,6 +128,6 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
 
 
     def convert_pix2world(self, verbose=False):
-        assert self.pixcoord.size == 2, "wrong length for pixcoord"
+        assert self.pixcoord.shape[0] == 2, "wrong length for pixcoord"
         [self.wcs_coord, junk] = self.wcs.wcs_pix2world([self.pixcoord,
                                                          self.pixcoord], 1)
