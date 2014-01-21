@@ -34,22 +34,33 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
 
         Optional parameters:
         ===================
+        pixcoord = list of length 2 numbers
+            denotes the pixcoord
         fitsname = string
             denoting path to fits file containing wcs info
         wcs = astropy.wcs.wcs object
             denote the wcs info
+
 
         Methods:
         =======
         set_wcs
         """
         # kluegy way of incorporting optional parameters
+        if kwargs.has_key('pixcoord'):
+            self.pixcoord = kwargs.get('pixcoord', None)
+            del kwargs['pixcoord']
+
         if kwargs.has_key('fitsname'):
             self.fitsname = kwargs.get('fitsname', None)
             del kwargs['fitsname']
 
         if kwargs.has_key('wcs'):
-            self.wcs = kwargs.get('wcs', None)
+            temp = kwargs.get('wcs', None)
+            assert type(temp) == ap.wcs.wcs.WCS, "print not " + \
+                " of right  type,\ntype(wcs) needs to be " + \
+                "astropy.wcs.wcs.WCS"
+            self.wcs = temp
             del kwargs['wcs']
 
         self.verbose = False
@@ -58,13 +69,22 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
             del kwargs['verbose']
 
 
-        ICRS.__init__(self, *args, **kwargs)
+        if ~hasattr(self, 'pixcoord'):
+            ICRS.__init__(self, *args, **kwargs)
 
-        # kluegy way of incorporting optional parameters
-        if hasattr(self, 'wcs'):
-            self.set_wcs(local_wcs=self.wcs, verbose=self.verbose)
-        if hasattr(self, 'fitsname'):
-            self.set_wcs(fitsname=self.fitsname, verbose=self.verbose)
+            # kluegy way of incorporting optional parameters
+            if hasattr(self, 'wcs'):
+                self.set_wcs(local_wcs=self.wcs, verbose=self.verbose)
+            if hasattr(self, 'fitsname'):
+                self.set_wcs(fitsname=self.fitsname, verbose=self.verbose)
+#        else:
+#            if hasattr(self, 'wcs'):
+#
+#            if hasattr(self, 'fitsname'):
+
+#            kwargs['ra'] = self.RA
+#            kwargs['dec'] = self.DEC
+
 
 
     def get_WCS_from_fits(self, fitsname, verbose=False):
@@ -83,22 +103,20 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
 
     def set_wcs(self, fitsname=None, local_wcs=None, verbose=False):
         """set
-        Parameters:
-        ==========
 
         """
-        if fitsname is not None:
-            self.wcs = self.get_WCS_from_fits(fitsname, verbose)
-        else:
-            if local_wcs is not None:
-                # store wcs info
-                assert type(local_wcs) == ap.wcs.wcs.WCS, "print not " + \
-                    " of right  type,\ntype(wcs) needs to be " + \
-                    "astropy.wcs.wcs.WCS"
-                self.wcs = local_wcs
-            else:
-                raise ValueError("input of fitsname and wcs are both " +
-                                "None - one of them has to be valid")
+        if local_wcs == None:
+            if fitsname is not None:
+                self.wcs = self.get_WCS_from_fits(fitsname, verbose)
+#            else:
+#                assert type(local_wcs) == ap.wcs.wcs.WCS, "print not " + \
+#                    " of right  type,\ntype(wcs) needs to be " + \
+#                    "astropy.wcs.wcs.WCS"
+#                # store wcs info
+#                self.wcs = local_wcs
+        if (local_wcs is None and fitsname is None):
+            raise ValueError("input of fitsname and wcs are both " +
+                            "None - one of them has to be valid")
 
 
         # kluegy way of doing transformation
@@ -110,3 +128,7 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
               super(wcs_ICRS, self).dec.value]]),1)
         if verbose:
             print "set self.pixcoord to {0}".format(self.pixcoord)
+
+    def convert_pix2world():
+
+        return
