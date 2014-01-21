@@ -9,6 +9,7 @@ import astropy as ap
 from astropy.io import fits
 from astropy import wcs
 from astropy.coordinates import ICRS
+from astropy import units as u
 from astropy.coordinates.coordsystems import SphericalCoordinatesBase
 
 
@@ -34,7 +35,7 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
 
         Optional parameters:
         ===================
-        pixcoord = list of length 2 numbers
+        pixcoord = numpy array of numbers with size 2
             denotes the pixcoord
         fitsname = string
             denoting path to fits file containing wcs info
@@ -68,22 +69,24 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
             self.verbose = kwargs.get('verbose', False)
             del kwargs['verbose']
 
-
-        if ~hasattr(self, 'pixcoord'):
-            ICRS.__init__(self, *args, **kwargs)
-
-            # kluegy way of incorporting optional parameters
-            if hasattr(self, 'wcs'):
-                self.set_wcs(local_wcs=self.wcs, verbose=self.verbose)
+        if hasattr(self, 'wcs'):
+            self.set_wcs(local_wcs=self.wcs, verbose=self.verbose)
+        else:
             if hasattr(self, 'fitsname'):
-                self.set_wcs(fitsname=self.fitsname, verbose=self.verbose)
-#        else:
-#            if hasattr(self, 'wcs'):
-#
-#            if hasattr(self, 'fitsname'):
+                self.set_wcs(fitsname=self.fitsname,
+                                verbose=self.verbose)
 
-#            kwargs['ra'] = self.RA
-#            kwargs['dec'] = self.DEC
+        if hasattr(self, 'pixcoord'):
+            print "now converting"
+            self.convert_pix2world(verbose=self.verbose)
+            kwargs['ra'] = self.wcs_coord[0]
+            kwargs['dec'] = self.wcs_coord[1]
+            kwargs['unit'] = (u.degree, u.degree)
+            ICRS.__init__(self, *args, **kwargs)
+        else:
+            # kluegy way of incorporting optional parameters
+            ICRS.__init__(self, *args, **kwargs)
+            self.convert_world2pix(verbose=self.verbose)
 
 
 
@@ -108,27 +111,23 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
         if local_wcs == None:
             if fitsname is not None:
                 self.wcs = self.get_WCS_from_fits(fitsname, verbose)
-#            else:
-#                assert type(local_wcs) == ap.wcs.wcs.WCS, "print not " + \
-#                    " of right  type,\ntype(wcs) needs to be " + \
-#                    "astropy.wcs.wcs.WCS"
-#                # store wcs info
-#                self.wcs = local_wcs
         if (local_wcs is None and fitsname is None):
             raise ValueError("input of fitsname and wcs are both " +
                             "None - one of them has to be valid")
 
-
+    def convert_world2pix(self, verbose=False):
         # kluegy way of doing transformation
         # want to generalize this to a bunch of ICRS not just one.....
         [self.pixcoord, junk] = self.wcs.wcs_world2pix(np.array(
-            [[super(wcs_ICRS, self).ra.value,
-              super(wcs_ICRS, self).dec.value],
-             [super(wcs_ICRS, self).ra.value,
-              super(wcs_ICRS, self).dec.value]]),1)
+            [[super(wcs_ICRS, self).ra.degree,
+              super(wcs_ICRS, self).dec.degree],
+             [super(wcs_ICRS, self).ra.degree,
+              super(wcs_ICRS, self).dec.degree]]),1)
         if verbose:
             print "set self.pixcoord to {0}".format(self.pixcoord)
 
-    def convert_pix2world():
 
-        return
+    def convert_pix2world(self, verbose=False):
+        assert self.pixcoord.size == 2, "wrong length for pixcoord"
+        [self.wcs_coord, junk] = self.wcs.wcs_pix2world([self.pixcoord,
+                                                         self.pixcoord], 1)
