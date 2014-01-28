@@ -278,9 +278,15 @@ def addNoise(ellip, sigma_noise):
 
 def process_header(headernames):
     '''
-    This function takes a list of strings
-    and then concatenate the names into the ttype header format
-    Status: stable and debugged
+    Purpose: read in a list of strings then concatenate the names into the ttype header format
+    Parameters
+    =========
+    headernames = a list of strings of the headernames
+    if you are using pandas dataframe, just pass in dataframe.columns
+
+    Status:
+    ======
+    stable and debugged
     '''
     headers = ''
     for i in range(len(headernames)):
@@ -300,13 +306,19 @@ def read_header(file, verbose = True):
     This functions helps a pandas read_table / read_csv file to read ttype
     headers
     input:
-    file = string, contains full path to textfile to be read
-    verbose = bool, indicates if message should be printed out
+    =====
+    file = string,
+        contains full path to textfile to be read
+    verbose = bool,
+        indicates if message should be printed out
 
     outputs:
-    names = list of strings, names of columns that you can use in pandas
+    =======
+    names = list of strings,
+        names of columns that you can use in pandas
             dataframe
-    skiprows = integer, number of rows that have been skipped
+    skiprows = integer,
+        number of rows that have been skipped
 
     Stability:
     works, not the fastest nor memory efficient implementation,
@@ -321,9 +333,10 @@ def read_header(file, verbose = True):
     skiprows = 0
     for i in range(len(l)):
         a = l[i]
-        #strip all whitespace
+        # strip all whitespace
         a = a.strip()
-        #try to only read in the ttype headers
+        # try to only read in the ttype headers
+        # this should be written with regex instead in next version
         if a.find('#ttype') == 0 or a.find('# ttype') == 0:
             h = re.split('=', a)
             h = h[1].rstrip('\n')
