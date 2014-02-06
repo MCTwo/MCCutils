@@ -177,7 +177,7 @@ def angcomp(ra1,dec1,ra2,dec2,method=3):
     DEGRAD = pi/180.
     import scipy
     if scipy.isscalar(ra1) and scipy.isscalar(ra2):
-	from math import cos,sin,sqrt
+	from numpy import cos,sin,sqrt
 	if ra1-ra2>180:
 		ra1 -= 360.
 	elif ra2-ra1>180:
@@ -226,11 +226,11 @@ def angendpt(ra1,dec1,d_arcmin,pa):
     angle (degrees) ccw from the +dec axis it returns the coordinates of the 
     second endpoint.
     '''
-    from math import pi,sin,cos,asin,arccos
+    from numpy import pi,sin,cos,arcsin,arccos
     d2r = pi / 180.0
     d = d_arcmin / 60.0
     phi = pa-90
-    delta_dec = -asin(sin(phi*d2r)*sin(d*d2r))/d2r
+    delta_dec = -arcsin(sin(phi*d2r)*sin(d*d2r))/d2r
     dec2 = dec1+delta_dec
     if d_arcmin >= 0: 
 	if sin(pa*d2r) > 0: sign = 1
