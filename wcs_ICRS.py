@@ -47,7 +47,7 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
         =======
         set_wcs
         """
-        # kluegy way of incorporting optional parameters
+        # kludgy way of incorporting optional parameters
         if kwargs.has_key('pixcoord'):
             self.pixcoord = kwargs.get('pixcoord', None)
             del kwargs['pixcoord']
@@ -129,5 +129,18 @@ class wcs_ICRS(ap.coordinates.builtin_systems.ICRS,
 
     def convert_pix2world(self, verbose=False):
         assert self.pixcoord.shape[0] == 2, "wrong length for pixcoord"
-        [self.wcs_coord, junk] = self.wcs.wcs_pix2world([self.pixcoord,
-                                                         self.pixcoord], 1)
+        [self.wcs_coord, junk] = \
+            self.wcs.wcs_pix2world([self.pixcoord, self.pixcoord], 1)
+
+def get_WCS_from_fits(fitsname, verbose=False):
+    """
+    Parameters
+    ----------
+    fitsname = string that contains the name of the fits file
+    """
+    hdulist = fits.open(fitsname)
+    w = wcs.WCS(hdulist[0].header)
+    if verbose:
+        print "successfully loaded wcs from fits"
+        w.wcs.print_contents()
+    return w
