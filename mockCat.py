@@ -13,18 +13,21 @@ and the branch info
 '''
 from __future__ import division
 import numpy
+import numpy.random
 import numpy as np
-import cosmo
-import tools
 import sys
 import matplotlib.pyplot as plt
-from profiles import nfwparam
-import numpy.random
-from nfwMCMC import shear
 from astropy import wcs
 import astropy.io.fits
-
+from astropy.coordinates import angle_utilities as ang_util
 import pandas as pd
+
+# import homebrewed modules ---------------
+from nfwMCMC import shear
+import metro
+from profiles import nfwparam
+import cosmo
+import tools
 #import cosmoplot as cplot
 #import ellip
 
@@ -293,6 +296,7 @@ def addNoise(ellip, sigma_noise):
     return ellip + noise
 
 
+
 def process_header(headernames):
     ''' read in a list of strings then concatenate the names into the
     ttype header format
@@ -301,6 +305,11 @@ def process_header(headernames):
     =========
     headernames = a list of strings of the headernames
     if you are using pandas dataframe, just pass in dataframe.columns
+
+    Returns:
+    =======
+    string - denotes headers formatted correctly for printing / writing out
+    for a ttype catalog
 
     Status:
     ======
@@ -393,7 +402,7 @@ def prepare_fits(fits_header):
         ordered like a matrix, [[CD0_0, CD0_1], [CD1_0, CD1_1]]
         and is symmetric in the simpliest cases
 
-    Stability: Untested
+    Stability: Works
 
     """
     hdulist = astropy.io.fits.open(fits_header)
@@ -404,6 +413,10 @@ def prepare_fits(fits_header):
 
 
 def make_wcs(cd_matrix):
+    """make a wcs object and return it given a cd matrix
+    cd_matrix = numpy array of size (2, 2)
+    """
+    assert cd_matrix.shape == (2, 2), "cd matrix is off wrong shape"
     w = wcs.WCS(naxis=2)
     w.wcs.cd = cd_matrix
     return w
@@ -673,6 +686,45 @@ def write_inputs(
     for k, v in locals().iteritems():
         R.write("{0} = {1}\n".format(k, v))
     R.write("--------end input values -----------\n\n")
+    return
+
+
+def convert_pix2physical(x, y, origin_x, origin_y, wcs):
+    return phy_x, phy_y
+
+
+def compute_shared_var():
+    return shared_var
+
+
+def compute_data_halo(cat, coord, halo_prop, cosmology, r_bounds, halo_name):
+    metro.data_halo()
+    return data_halo
+
+
+def compute_ang_sep(cat, coord, halo_prop):
+    """
+    Parameters
+    ==========
+    cat = pandas df
+        contains the columns named coord
+    coord = list of strings
+        the names of the columns in the dataframe that corresponds to the
+        coords in wcs and in degrees
+    halos = list of numbers
+        in the form of [RA_wcs_deg, DEC_wcs_deg, redshift, ...]
+
+    Returns
+    =======
+    numpy array of floats denotes angular separation in units of radians
+    """
+    return ang_util.angular_separation(cat[coord[0]] / 180. * np.pi,
+                                       cat[coord[1]] / 180. * np.pi,
+                                       halo_prop._RA / 180. * np.pi,
+                                       halo_prop._DEC / 180. * np.pi)
+
+
+def compute_model_data():
     return
 
 
