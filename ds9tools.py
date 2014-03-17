@@ -541,7 +541,64 @@ def circleregions(prefix,ra,dec,radius,color='green',objid=None):
         else:
             F.write('circle({0:1.5f},{1:1.5f},{2:1.2f}") # color={3}\n'.format(ra[i],dec[i],radius[i],color))
     F.close()
+
+def ellipseregions(prefix,ra,dec,e1,e2,radius,color='green',objid=None,cd=((-1,0),(0,1))):
+    '''
+    Creates a ds9.reg file where each object input is represented by a circle.
+    prefix = [string] the prefix associated with the output file
+    ra = [1D array of floats; units = degrees] RA of the objects
+    dec = [1D array of floats; units=degrees] Dec of the objects
+    e1 = [1D array of floats] e1 ellipticity component. Ellipticities should
+       be defined with respect to the standard x,y coordinate system and it is
+       assumed that ra and dec axes are orientated such that +x=-RA and +y=+Dec
+       unless a cd matrix is input, otherwise the cd option should be specified
+    e2 = [1D array of floats] e2 ellipticity component.
+    radius = [1D array of floats; units=arcsec] Radius of the object, e.g. FWHM 
+       in units of arcsec.
+    color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta', 
+       'yellow'] color of the point
+    size = [integer; units=pixels] the size of the point
+    objid = [array of integers] the object id of each object, will be added to
+       the text portion of each point
+    cd = [((float,float),(float,float))] This is the CD matrix typically found
+         in WCS header definitions which provides the scale and orientation of
+         the RA,Dec coordinate system with the x,y pixel coordinate system such
+         that [[x];[y]] = [[CD_11, CD_12];[CD_21, CD_22]] [[RA]; [Dec]]. For the
+         purposes of this program the pixel scale is not important as we are
+         only after the respective orientation of the two coordinates.
+
+    '''
+    # Convert the ellipticity components to the reference RA,Dec frame
+    cd = numpy.array(cd)
+    # angle that will rotate N to +y and E to -x
+    theta = numpy.arctan(cd[1,0]/cd[0,0])
+    e1_wcs = e1*numpy.cos(-2*theta) + e2*numpy.sin(-2*theta)
+    e2_wcs = -e1*numpy.sin(-2*theta) + e2*numpy.cos(-2*theta)
+
+    # Calculate the position angle of the ellipse
+    phi = numpy.arctan2(e2_wcs,e1_wcs)*180/numpy.pi
+    phi /= 2.
     
+    # Calculate the size of the ellipse components
+    # calculate the ellipticity magnitude
+    e_mag = numpy.sqrt(e1_wcs**2+e2_wcs**2)
+    # calculate a and b for the ellipse
+    a = radius*(1+e_mag)
+    b = radius*(1-e_mag)
+    
+    # Save the ellipses to file
+    outputname = prefix+'_ellipses.reg'
+    F = open(outputname,'w')
+    F.write('global color=green dashlist=8 3 width=1 font="helvetica 10 normal" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1'+'\n')
+    F.write('fk5'+'\n')
+    for i in numpy.arange(numpy.size(ra)):
+        if objid!=None:
+            F.write('ellipse({0:1.5f},{1:1.5f},{2:1.3f}",{3:1.3f}",{4:1.1f}) # color={5} text='.format(ra[i],dec[i],a[i],b[i],phi[i],color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
+        else:
+            F.write('ellipse({0:1.5f},{1:1.5f},{2:1.3f}",{3:1.3f}",{4:1.1f}) # color={5}\n'.format(ra[i],dec[i],a[i],b[i],phi[i],color))
+    F.close()
+    print 'Finished making ellipse regions.'
+
 ##debug
 #fitsname = '/Users/dawson/Documents/Research/Filaments/StackWL/5to10a1_wNden_Nden.fits'
 #regname = '/Users/dawson/Documents/Research/Filaments/StackWL/temp.reg'
@@ -569,6 +626,27 @@ def circleregions(prefix,ra,dec,radius,color='green',objid=None):
 #ind = 1
 ##regcenter(fit,reg,ind)
 #regminmax(fit,reg,ind)
+
+## debug ellipsereg()
+#import tools
+#catalog_sub = '/Users/dawson/OneDrive/Research/ShapeComparison/PureCatalogs/SubaruPureCat_revB.txt'
+#prefix = 'test'
+#cat_sub = tools.readcatalog(catalog_sub)
+#key_sub = tools.readheader(catalog_sub)
+#ra_sub_id = 'alpha'
+#dec_sub_id = 'delta'
+#fwhm_sub_id = 'FWHM_IMAGE'
+#e1_sub_id = 'e1'
+#e2_sub_id = 'e2'
+#ra = cat_sub[:,key_sub[ra_sub_id]]
+#dec = cat_sub[:,key_sub[dec_sub_id]]
+#e1 = cat_sub[:,key_sub[e1_sub_id]]
+#e2 = cat_sub[:,key_sub[e2_sub_id]]
+#size = cat_sub[:,key_sub[fwhm_sub_id]]
+#pixscale_sub = 0.2
+#size = size*pixscale_sub
+#ellipseregions(prefix,ra,dec,e1,e2,size,color='magenta')
+
 
 """
 Copyright (c) 2012, William A. Dawson
