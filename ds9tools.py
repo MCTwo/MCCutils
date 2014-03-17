@@ -513,10 +513,35 @@ def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None)
     F.write('fk5'+'\n')
     for i in numpy.arange(numpy.size(ra)):
         if objid!=None:
-            F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4} text='.format(ra[i],dec[i],style,size,color)+'{'+'{0:0.0f}'.format(objid[i])+'}\n')
+            F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4} text='.format(ra[i],dec[i],style,size,color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
         else:
             F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4}\n'.format(ra[i],dec[i],style,size,color))
-    F.close()    
+    F.close()
+    
+def circleregions(prefix,ra,dec,radius,color='green',objid=None):
+    '''
+    Creates a ds9.reg file where each object input is represented by a circle.
+    prefix = [string] the prefix associated with the output file
+    ra = [1D array of floats; units = degrees] RA of the objects
+    dec = [1D array of floats; units=degrees] Dec of the objects
+    radius = [1D array of floats; units=arcsec] Radius of the circle
+    color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta', 
+       'yellow'] color of the point
+    size = [integer; units=pixels] the size of the point
+    objid = [array of integers] the object id of each object, will be added to
+       the text portion of each point
+    '''
+    outputname = prefix+'_circles.reg'
+    F = open(outputname,'w')
+    F.write('global color=green dashlist=8 3 width=1 font="helvetica 10 normal" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1'+'\n')
+    F.write('fk5'+'\n')
+    for i in numpy.arange(numpy.size(ra)):
+        if objid!=None:
+            F.write('circle({0:1.5f},{1:1.5f},{2:1.2f}") # color={3} text='.format(ra[i],dec[i],radius[i],color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
+        else:
+            F.write('circle({0:1.5f},{1:1.5f},{2:1.2f}") # color={3}\n'.format(ra[i],dec[i],radius[i],color))
+    F.close()
+    
 ##debug
 #fitsname = '/Users/dawson/Documents/Research/Filaments/StackWL/5to10a1_wNden_Nden.fits'
 #regname = '/Users/dawson/Documents/Research/Filaments/StackWL/temp.reg'
