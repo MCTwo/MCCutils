@@ -69,13 +69,13 @@ def filtercat(cat,param_index,min_param,max_param,min_inc=True,max_inc=True,
 def matchcat(cat0,index0,cat1,index1,nullval=-99):
     '''
     Use: matchcat(cat0,index0,cat1,index1,nullval=-99)
-    
+
     Concatinates two catalogs by matching the rows of cat1 with those of cat0
     based on the values of cat0 column number index0 cat1 column number index1.
     cat0 is the primary array and all of its rows will be represented in the
-    concatinated output array. Only the first row of cat1 that satisfies the 
+    concatinated output array. Only the first row of cat1 that satisfies the
     matching criteria will be concatinated with that row from cat0.
-    
+
     cat0 = [1D or 2D array], primary base array
     index0 = [integer], 0 indexed column number of cat0 that contains the values
              to be matched with cat1
@@ -87,7 +87,7 @@ def matchcat(cat0,index0,cat1,index1,nullval=-99):
               match for a given row
     Note that if a catalog is vector array then the param_index for that catalog
     should be entered as zero
-    
+
     Output:
     Concatinated array with shape (Nrow0,Ncol0+Ncol1), the first columns will be
     those of cat0 followed by the columns of cat1.
@@ -166,13 +166,14 @@ def angdist(ra1,dec1,ra2,dec2):
     return distance
 
 
-# UNITS: arcsec (output), degrees (input)
 def angcomp(ra1,dec1,ra2,dec2,method=3):
     """
     Return the delta_RA and delta_dec (delta = 1-2) components of the angular
     distance between objects.  This is simply an alternate output of the
     angular_distance function above. Distance is returned as degrees, and method chooses a more or less accurate way of determining the distance (with 1 being the fastest/least accurate).
     from astorlib.py
+
+    # UNITS: degrees (output), degrees (input)
     """
     DEGRAD = pi/180.
     import scipy
@@ -192,7 +193,7 @@ def angcomp(ra1,dec1,ra2,dec2,method=3):
 		dec2 = dec2*0. + dec1
 		dec1 = t.copy()
 		del t
-	
+
 	ra1 = scipy.where(ra1-ra2>180,ra1-360.,ra1)
 	ra2 = scipy.where(ra2-ra1>180,ra2-360.,ra2)
 
@@ -223,7 +224,7 @@ def angcomp(ra1,dec1,ra2,dec2,method=3):
 def angendpt(ra1,dec1,d_arcmin,pa):
     '''
     Given an endpoint coordinate (degrees), a distance (arcmin), and a position
-    angle (degrees) ccw from the +dec axis it returns the coordinates of the 
+    angle (degrees) ccw from the +dec axis it returns the coordinates of the
     second endpoint.
     '''
     from numpy import pi,sin,cos,arcsin,arccos
@@ -232,7 +233,7 @@ def angendpt(ra1,dec1,d_arcmin,pa):
     phi = pa-90
     delta_dec = -arcsin(sin(phi*d2r)*sin(d*d2r))/d2r
     dec2 = dec1+delta_dec
-    if d_arcmin >= 0: 
+    if d_arcmin >= 0:
 	if sin(pa*d2r) > 0: sign = 1
 	else: sign = -1
     else:
@@ -256,7 +257,7 @@ def readheader(catalog):
         #ttype0 = objid
         #ttype1 = x
     Output:
-    dic = dictonary that contains the {ttype string,column #}.  
+    dic = dictonary that contains the {ttype string,column #}.
     '''
     import numpy
     import sys
@@ -298,7 +299,7 @@ def readcatalog(catalog,verbose=True):
 
 def distancematch(objid_1,ra_1,dec_1,objid_2,ra_2,dec_2,outputfile,tolerance = 2,stampsize=10):
     '''
-    Given two catalogs, for each object in catalog 2 it will try to find the 
+    Given two catalogs, for each object in catalog 2 it will try to find the
     nearest neighbor in catalog 1.  Then output a catalog of the matches.
     INPUT:
     objid_1 = [1D array] unique identifiers for the objects in catalog 1
@@ -327,7 +328,7 @@ def distancematch(objid_1,ra_1,dec_1,objid_2,ra_2,dec_2,outputfile,tolerance = 2
     fh.write('#ttype4 = ra_2\n')
     fh.write('#ttype5 = dec_2\n')
     fh.write('#ttype6 = matchdelta\n')
-    
+
     N_2 = numpy.size(objid_2)
     for i in numpy.arange(N_2):
 	# Do a quick trim of the catalog to reduce calculation time
@@ -343,7 +344,7 @@ def distancematch(objid_1,ra_1,dec_1,objid_2,ra_2,dec_2,outputfile,tolerance = 2
 	dec_flt = dec_1[mask_stamp]
 	# determine the number of catalog 1 objects in the stamp
 	N = numpy.size(objid_flt)
-    
+
 	# Calculated the angular separation between all catalog 1 objects and
 	# the catalog 2 object
 	j=0
@@ -358,7 +359,7 @@ def distancematch(objid_1,ra_1,dec_1,objid_2,ra_2,dec_2,outputfile,tolerance = 2
 		match_id = objid_flt[0]
 		match_ra = ra_flt[0]
 		match_dec = dec_flt[0]
-		match_delta = delta[0]		
+		match_delta = delta[0]
 	    else:
 		match_id = objid_flt[delta<tolerance][0]
 		match_ra = ra_flt[delta<tolerance][0]
@@ -506,32 +507,32 @@ def addwcs(fitsfile,option,parentfits=None,ra_bounds=None,dec_bounds=None,
            unitcd=None,wcscards=None):
     '''
     fitsfile = [string] name of the fits file you want to add a wcs to
-    option = [string], ('parent', 'bounds', or 'user'): 
-             'parent' requires parentfits to be defined; it assumes that the two 
+    option = [string], ('parent', 'bounds', or 'user'):
+             'parent' requires parentfits to be defined; it assumes that the two
              fits files have the same extents and x,y orientation with respect to
              ra,dec and will create a matching wcs scale according to their size
-             
+
              'bounds' requires ra_min, ra_max, dec_min, dec_max, and unitcd to be
-             defined; creates a wcs based on input physical bounds and 
-             orientation; currently it only allows orthogonal orientations of 
+             defined; creates a wcs based on input physical bounds and
+             orientation; currently it only allows orthogonal orientations of
              x,y with respect to ra,dec
-             
+
              'user' requires wcs to be defined; creates wcs header cards mathing
              the user defined values in the wcs dictionary
     parentfits = [string], name of the parent fits file from which to base the
                  current wcs on; only required if option='parent'
-    ra_bounds = [(float,float)] {units: (degrees,degrees)}, (min ra, max ra); 
+    ra_bounds = [(float,float)] {units: (degrees,degrees)}, (min ra, max ra);
                 only required if option='bounds'
-    dec_bounds = [(float,float)] {units: (degrees,degrees)}, (min dec, max dec); 
+    dec_bounds = [(float,float)] {units: (degrees,degrees)}, (min dec, max dec);
                  only required if option='bounds'
-    unitcd = [(int,int,int,int)], a unit cd matrix that defines the orientation of 
+    unitcd = [(int,int,int,int)], a unit cd matrix that defines the orientation of
              the x,y coordinates with respect to the ra,dec coordinates. Currently only
              orthogonal relations are allowed. e.g. if positive x is right and
              positive y is up then (-1,0,0,1) sets the positive ra axis to the
              left and the positive dec axis up, or (0,1,1,0) sets the positive
-             ra axis up and the positive dec axis to the right             
+             ra axis up and the positive dec axis to the right
     wcscards = {'crval1':crval1,'crval2':crval2,'crpix1':crpix1,'crpix2':crpix2,
-                'cd1_1':cd1_1,'cd1_2':cd1_2,'cd2_1':cd2_1,'cd2_2':cd2_2} a 
+                'cd1_1':cd1_1,'cd1_2':cd1_2,'cd2_1':cd2_1,'cd2_2':cd2_2} a
                 dictionary defining the wcs cards of the header
     '''
     import pyfits
@@ -575,7 +576,7 @@ def addwcs(fitsfile,option,parentfits=None,ra_bounds=None,dec_bounds=None,
         ra_max = ra_bounds[1]
         dec_min = dec_bounds[0]
         dec_max = dec_bounds[1]
-        avgdec = (dec_max + dec_min) / 2.0 * numpy.pi / 180.0 
+        avgdec = (dec_max + dec_min) / 2.0 * numpy.pi / 180.0
         ra_length = (ra_max - ra_min) * numpy.cos(avgdec)
         dec_length = (dec_max - dec_min)
         crval1 = (ra_max - ra_min) / 2.0 + ra_min
@@ -616,7 +617,7 @@ def addwcs(fitsfile,option,parentfits=None,ra_bounds=None,dec_bounds=None,
 
 def fitline(x,y):
     '''
-    This is a simple least square line fit to points without error. 
+    This is a simple least square line fit to points without error.
     x and y are equal length 1D arrays
     Output:
     m = slope

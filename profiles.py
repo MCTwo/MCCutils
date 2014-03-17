@@ -3,6 +3,8 @@ This program contains various surface mass density profiles of model clusters an
 filaments.
 
 Many of the cluster profiles come from Keiichi Umetsu's review article.
+See Table 1 on p. 8, equations 31, 32 on p.10 and discussions on p. 21 
+for putting together expression of nfw_Sigma, nfw_sigmabar and sigma_cr 
 
 The filament profile comes from the Colberg et al. 2005 paper.
 '''
@@ -39,6 +41,9 @@ def nfw_Sigma(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     r_s = scale radius of the halo (Mpc)
     r = radius of interest (Mpc)
     z = halo redshift
+    
+    compare expressions in Umetsu 2010 table 1 and equations in discussion on
+    p.21 to get this expression 
     '''
     rho_crit = cosmo.rhoCrit(z,h,Om,Ol,Or)
     #convert r to an array so that the function will work for ints and arrays
@@ -53,13 +58,17 @@ def nfw_Sigma(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     f = numpy.zeros(numpy.shape(x))
     #if x<1
     if numpy.sum(mask_lt) !=0:
-        f[mask_lt] = 1/(1.-x[mask_lt]**2)*(-1+2/numpy.sqrt(1-x[mask_lt]**2)*numpy.arctanh(numpy.sqrt((1-x[mask_lt])/(1.+x[mask_lt]))))
+        f[mask_lt] = 1/(1.-x[mask_lt]**2)*\
+                (-1+2/numpy.sqrt(1-x[mask_lt]**2)*\
+                 numpy.arctanh(numpy.sqrt((1-x[mask_lt])/(1.+x[mask_lt]))))
     #elif x==1
     if numpy.sum(mask_eq) !=0:
         f[mask_eq] = 1/3.
     #elif x > 1
     if numpy.sum(mask_gt) !=0:
-        f[mask_gt] = 1/(x[mask_gt]**2-1.)*(1-2/numpy.sqrt(x[mask_gt]**2-1)*numpy.arctan(numpy.sqrt((x[mask_gt]-1)/(x[mask_gt]+1.))))
+        f[mask_gt] = 1/(x[mask_gt]**2-1.)*\
+                    (1-2/numpy.sqrt(x[mask_gt]**2-1)*\
+                     numpy.arctan(numpy.sqrt((x[mask_gt]-1)/(x[mask_gt]+1.))))
     #if only single value of r was input then make the f array into a float
     if numpy.size(f) == 1:
         f = f[0]
@@ -74,6 +83,9 @@ def nfw_Sigmabar(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     r_s = scale radius of the halo [Mpc]
     r = radius of interest [Mpc]
     z = halo redshift
+    
+    compare expressions in Umetsu 2010 table 1 and equations in discussion on
+    p.21 to get this expression
     '''
     rho_crit = cosmo.rhoCrit(z,h,Om,Ol,Or)
     #convert r to an array so that the function will work for ints and arrays
@@ -88,13 +100,17 @@ def nfw_Sigmabar(del_c,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     g = numpy.zeros(numpy.shape(x))
     #if x<1
     if numpy.sum(mask_lt) !=0:
-        g[mask_lt] = numpy.log(x[mask_lt]/2.)+2/numpy.sqrt(1-x[mask_lt]**2)*numpy.arctanh(numpy.sqrt((1-x[mask_lt])/(1+x[mask_lt])))
+        g[mask_lt] = numpy.log(x[mask_lt]/2.)+\
+                2/numpy.sqrt(1-x[mask_lt]**2)*\
+                numpy.arctanh(numpy.sqrt((1-x[mask_lt])/(1+x[mask_lt])))
     #elif x==1
     if numpy.sum(mask_eq) !=0:
         g[mask_eq] = numpy.log(x[mask_eq]/2.) + 1
     #elif x > 1:
     if numpy.sum(mask_gt) !=0:
-        g[mask_gt] = numpy.log(x[mask_gt]/2.)+2/numpy.sqrt(x[mask_gt]**2-1)*numpy.arctan(numpy.sqrt((x[mask_gt]-1)/(x[mask_gt]+1.)))
+        g[mask_gt] = numpy.log(x[mask_gt]/2.)+\
+                    2/numpy.sqrt(x[mask_gt]**2-1)*\
+                   numpy.arctan(numpy.sqrt((x[mask_gt]-1)/(x[mask_gt]+1.)))
     #if only single value of r was input then make the g array into a float
     if numpy.size(g) == 1:
         g = g[0]
@@ -154,7 +170,7 @@ def nfwparam_extended(M_200,z,h_scale=0.7,Om=0.3,Ol=0.7,Or=0.0):
     rho_s = del_c*rho_cr
     return del_c, r_s, r_200, c, rho_s
 
-def nfwM200(conc, A200, B200, C200, z, h_scale=0.7):
+def nfwM200(conc, z, A200=5.71, B200=-0.084, C200=-0.47, h_scale=0.7):
     '''
     Author: Karen Y. Ng
     This function gives the M200 based on c200 by making use of the mass-
@@ -178,6 +194,31 @@ def nfwM200(conc, A200, B200, C200, z, h_scale=0.7):
 #    '''
 #    This returns the density of the filament for the input cylindrical radius.
 #    '''
+
+def nfwkappa(del_c,r_s,r,zl,zs,h=0.7,Om=0.3,Ol=0.7,Or=0):
+    '''
+    Computes the convergence for a nfw profile
+    input:
+    del_c = characteristic density
+    r_s = scale radius 
+    r = distance from center of lens
+    zl = lens redshift
+    zs = source redshift
+    '''
+    sigma = nfw_Sigma(del_c, r_s, r, zl)
+    sigma_cr = cosmo.lensgeo(zl,zs)['sigcr']
+    return sigma/sigma_cr 
+
+
+def del_conc(c):
+    '''
+    calculates characteristic overdensity based on given concentration
+    input:
+    c = concentration parameter 
+    output:
+    characteristic overdensity
+    '''
+    return 200/3.*c**3/(numpy.log(1+c)-c/(1+c))
 
 def filament_mu(mu_0,r_s,r,z,h=0.7,Om=0.3,Ol=0.7,Or=0):
     '''
