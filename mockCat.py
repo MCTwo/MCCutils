@@ -24,7 +24,7 @@ import pandas as pd
 
 # import homebrewed modules ---------------
 from nfwMCMC import shear
-import metro
+#import metro
 from profiles import nfwparam
 import cosmo
 import tools
@@ -697,9 +697,9 @@ def compute_shared_var():
     return shared_var
 
 
-def compute_data_halo(cat, coord, halo_prop, cosmology, r_bounds, halo_name):
-    metro.data_halo()
-    return data_halo
+#def compute_data_halo(cat, coord, halo_prop, cosmology, r_bounds, halo_name):
+#    metro.data_halo()
+#    return data_halo
 
 
 def compute_ang_sep(cat, coord, halo_prop):
