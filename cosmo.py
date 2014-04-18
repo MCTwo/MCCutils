@@ -1,3 +1,8 @@
+"""
+Author : William A. Dawson <will@dawsonresearch.com>
+LICENSE : BSD 3 clause
+"""
+
 import numpy
 import scipy.integrate
 #constants
@@ -41,7 +46,7 @@ def Dl(z,h=0.7,Om=0.3,Ol=0.7):
     Returns the cosmological luminosity distance (in units of Mpc)
     """
     return Da(z,h,Om,Ol)*(1+z)**2
-    
+
 def ProjectedLength(z,h=0.7,Om=0.3,Ol=0.7):
     """
     Usage: ProjectedLength(z,h=0.7,Om=0.3,Ol=0.7)
@@ -63,19 +68,20 @@ def lensgeo(zl,zs,h=0.7,Om=0.3,Ol=0.7):
     Dl = angular diameter distance to lens
     Ds = angular diameter distance to source
     Dls = angular diameter distance from lens to source
-    sigcr = Critical surface mass density in units of kg / Mpc^2 
+    sigcr = Critical surface mass density in units of kg / Mpc^2
     """
     if zl >= zs:
-        print 'Error: Lens redshift must be smaller than source redshift.'
+        raise ValueError("Lens redshift must be smaller than source " + \
+                         "redshift.")
     else:
         f0l = scipy.integrate.quad(lambda x: chi(x,Om,Ol),0,zl)[0]
         f0s = scipy.integrate.quad(lambda x: chi(x,Om,Ol),0,zs)[0]
-        
+
         ds = c/(100.0*h)/(1+zs)*f0s # distance to source
         dl = c/(100.0*h)/(1+zl)*f0l # distance to lens
         dls = c/(100.0*h)/(1+zs)*(f0s-f0l) # distance between lens and source
-        
-        sigcr = c**2/(4*numpy.pi*G)*ds/(dl*dls)*1000/kminMpc 
+
+        sigcr = c**2/(4*numpy.pi*G)*ds/(dl*dls)*1000/kminMpc
 
         return {'Dl':dl,'Ds':ds,'Dls':dls,'sigcr':sigcr}
 
@@ -110,7 +116,7 @@ def lookbacktime(z,h=0.7,Om=0.3,Ol=0.7):
     Units Gyr
     """
     return age(0,h,Om,Ol) - age(z,h,Om,Ol)
-    
+
 ## These are not producing the correct answer.
 ##def age(z,h=0.7,Om=0.3,Ol=0.7,Or=0):
 ##    """
@@ -176,29 +182,4 @@ def vdisp(m200,z,h=0.7,Om=0.3,Ol=0.7,Or=0,Ok=0):
     '''
     return 10**(numpy.log10(1080)+0.352*numpy.log10(H(z,h,Om,Ol,Or,Ok)/100.*m200/10^15))
 
-"""
-Copyright (c) 2012, William A. Dawson
-All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the University of California, Davis nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL WILLIAM A. DAWSON BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""
