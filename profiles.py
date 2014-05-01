@@ -135,7 +135,8 @@ def nfwparam(M_200, z, h_scale=0.7, Om=0.3, Ol=0.7, Or=0.0):
     r_200 = (M_200 * 1e14 * 3 / (4 * numpy.pi * 200 * rho_cr)) ** (1 / 3.)
     # the h_scale is multiplied because the scaling relationship uses
     # 2e-2 h_scale^{-1}  using 1e14 Msun as unit
-    c = A200 / (1 + z) ** numpy.abs(C200) * (M_200 * h_scale / 2e-2) ** (B200)
+    c = A200 * ((1 + z) ** C200) * (M_200 * h_scale / 2e12) ** (B200)
+    print "c = {0}".format(c)
     del_c = 200 / 3. * c ** 3 / (numpy.log(1 + c) - c / (1 + c))
     r_s = r_200 / c
     return del_c, r_s
@@ -178,7 +179,11 @@ def nfwM200(conc, A200, B200, C200, z, h_scale=0.7):
     concentration scaling relationship given by Duffy et. al. 2008
     input:
     conc = concentration parameter
-    A200, B200 , C200 = suitable parameters from Table 1 of Duffy et. al. 2008
+    A200, B200 , C200 = floats - suitable parameters from Table 1 of Duffy et. al. 2008
+    e.g. for the full halos we used,
+    A200 = 5.71
+    B200 = -0.084
+    C200 = -0.47
     z = redshift
     output:
     the M200 with units of solar mass * h^{-1}
