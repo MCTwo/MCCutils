@@ -115,7 +115,8 @@ def nfw_Sigmabar(del_c, r_s, r, z, h=0.7, Om=0.3, Ol=0.7, Or=0):
     return 4 * del_c * rho_crit * r_s * g / x ** 2 * minMpc
 
 
-def nfwparam(M_200, z, h_scale=0.7, Om=0.3, Ol=0.7, Or=0.0):
+def nfwparam(M_200, z, A200=5.71, B200=-0.084, C200=-0.47,
+             h_scale=0.7, Om=0.3, Ol=0.7, Or=0.0, debug=False):
     '''
     Inputs:
     M_200 = [array of floats; units=1e14 M_sun]
@@ -125,20 +126,23 @@ def nfwparam(M_200, z, h_scale=0.7, Om=0.3, Ol=0.7, Or=0.0):
     the halo (Mpc)
     Assumes Duffy et al. 2008 M_200 vs. c relationship.
     '''
+
+    assert numpy.sum(M_200 < 5e2) / M_200.size, "M_200 has to be in units of \
+        1e14 M_sun check your input M_200"
+
     # calculate the concentration parameter based on Duffy et al. 2008
     # for full samples profile
-    A200 = 5.71
-    B200 = -0.084
-    C200 = -0.47
     rho_cr = cosmo.rhoCrit(z, h_scale, Om, Ol, Or) / kginMsun * minMpc ** 3
     # calculate the r_200 radius
     r_200 = (M_200 * 1e14 * 3 / (4 * numpy.pi * 200 * rho_cr)) ** (1 / 3.)
     # the h_scale is multiplied because the scaling relationship uses
     # 2e-2 h_scale^{-1}  using 1e14 Msun as unit
-    c = A200 * ((1 + z) ** C200) * (M_200 * h_scale / 2e12) ** (B200)
-    print "c = {0}".format(c)
+    c = A200 * ((1 + z) ** C200) * (M_200 * h_scale / 2e-2) ** (B200)
     del_c = 200 / 3. * c ** 3 / (numpy.log(1 + c) - c / (1 + c))
     r_s = r_200 / c
+    if debug is True:
+        print "c = {0}".format(c)
+        print "r_200 = {0}".format(r_200)
     return del_c, r_s
 
 
@@ -194,6 +198,7 @@ def nfwM200(conc, A200, B200, C200, z, h_scale=0.7):
     # depending on the unit
     return M_pivot * (conc / A200 / ((1.0 + z) ** C200)) ** (1.0 / B200)
 
+
 # Filament Profile
 
 # def filament_den():
@@ -236,6 +241,7 @@ def filament_mubar(mu_0, r_s, r, z, h=0.7, Om=0.3, Ol=0.7, Or=0):
         mu_0 * r_s ** 2 *
         numpy.log(r / r_s + numpy.sqrt(1. + (r / r_s) ** 2)) / (2. * r)
     )
+
 
 '''
 Copyright (c) 2012, William A. Dawson
