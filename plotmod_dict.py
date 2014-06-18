@@ -18,6 +18,7 @@ import cosmo
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 import pandas as pd
+from astropy.cosmology import FlatLambdaCDM
 
 
 def load_pickles_to_df(par, prefix, index, msun1e14=True,
@@ -97,6 +98,51 @@ def loadcombo(prefix, index, suffix):
     return array
 
 
+def mask_bigger_than_age_of_universe(
+    df, z, H0, Om0, T=None, TSM_0=None, TSM_1=None):
+    """assumes a FlatLambdaCDM cosmology to calculate age of universe at
+    particular redshift and returns a mask
+
+    Parameters
+    =========
+    df = pandas dataframe - outputs from load_pickles_to_df
+    z = float - redshift
+    H0 = Hubble parameter
+    Om0 = Relative density of matter
+    T = string - denotes column name for T in the dataframe
+    TSM_0 = string - denotes column name for TSM_0 in the dataframe
+    TSM_1 = string - denotes column name for TSM_1 in the dataframe
+
+    Returns
+    ======
+    combined mask
+    """
+    assert T is not None or TSM_0 is not None or TSM_1 is not None, \
+        "no relevant col names for T, TSM_0 and TSM_1 specified"
+
+    cosmology = FlatLambdaCDM(H0=H0, Om0=Om0)
+    age_of_universe = cosmology.age(z)
+    age = age_of_universe.value
+
+    masks = {}
+    if TSM_0 is not None:
+        masks[TSM_0] = df[TSM_0] < age
+    if TSM_1 is not None:
+        masks[TSM_1] = df[TSM_1] < age
+    if T is not None:
+        masks[T] = df[T] < age
+
+    mask = np.ones(df.shape[0])
+    for m in masks.values():
+        mask = np.logical_and(mask, m)
+    print "# of masked rows = {0}".format(df.shape[0] - np.sum(mask))
+    print "# of remaining rows = {0}".format(np.sum(mask))
+    print "% of original data remaining = {0:.2f}".format(
+        (np.sum(mask)) / df.shape[0] * 100)
+
+    return mask
+
+
 # Create the prior from the radio relic constraints
 # we know that if the two subclusters are within 0.5 Mpc to 1.5 Mpc
 # then the detection of a radio relic is possible
@@ -119,6 +165,7 @@ def loadcombo(prefix, index, suffix):
 #            count += 1
 #    count = len(radiomask) - count
 #    return radiomask, count
+
 def radio_dist_prior(d_3D, d_3Dmax=3.0, d_3Dmin=1.0):
     '''
     Stability: to be tested
@@ -196,7 +243,8 @@ def apply_radioprior(radiomask, dataarray):
 
 def percentdiff(x, prefix, prob=None, N_bins=100, histrange=None, x_lim=None,
                 y_lim=None, x_label=None, y_label=None, legend=None):
-
+    """
+    """
     #fig = pylab.figure()
     # find out size of array
     totalsize = len(x)
@@ -213,9 +261,10 @@ def percentdiff(x, prefix, prob=None, N_bins=100, histrange=None, x_lim=None,
             # print i,"th iteration"
         # size of each of the n parts:
         partsize = totalsize*(n)/(nparts-1)
-        hist, binedges, tmp = pylab.hist(
-            x[:partsize], bins=N_bins, histtype='step',                              weights=prob[:partsize], range=histrange, color='k',
-            linewidth=2)
+        hist, binedges, tmp = \
+            pylab.hist(x[:partsize], bins=N_bins,
+                       histtype='step', weights=prob[:partsize],
+                       range=histrange, color='k', linewidth=2)
         # Calculate the location and confidence intervals
         # Since my location and confidence calculations can't take weighted data I
         # need to use the weighted histogram data in the calculations
@@ -263,11 +312,13 @@ def percentdiff(x, prefix, prob=None, N_bins=100, histrange=None, x_lim=None,
     pylab.plot((ll_68, ll_68), (pylab.ylim()[0], pylab.ylim()[1]),
                '-.', linewidth=2, color='#800000', label='68% $IC_{B_{BI}}$')
     pylab.plot((ul_68, ul_68),
-               (pylab.ylim()[0], pylab.ylim()[1]), '-.', linewidth=2, color='#800000')
+               (pylab.ylim()[0], pylab.ylim()[1]), '-.', linewidth=2,
+               color='#800000')
     pylab.plot((ll_95, ll_95), (pylab.ylim()[0], pylab.ylim()[1]),
                ':', linewidth=2, color='#0000A0', label='95% $IC_{B_{BI}}$')
     pylab.plot((ul_95, ul_95),
-               (pylab.ylim()[0], pylab.ylim()[1]), ':', linewidth=2, color='#0000A0')
+               (pylab.ylim()[0], pylab.ylim()[1]), ':', linewidth=2,
+               color='#0000A0')
 
     pylab.savefig(filename, dpi=300, bbox_inches='tight')
     pylab.close()
