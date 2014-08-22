@@ -599,6 +599,59 @@ def ellipseregions(prefix,ra,dec,e1,e2,radius,color='green',objid=None,cd=((-1,0
     F.close()
     print 'Finished making ellipse regions.'
 
+def cropcontours(file_in, file_out, range_ra, range_dec):
+    '''
+    Will crop contours in a ds9 .con file to specified the ra and dec range.
+    Input:
+    file_in = [string], the path/name of the input ds9 contour file, should be 
+        saved using WCS degree options
+    file_out = [string], the path/name of the cropped ds9 contour file
+    range_ra = [(float, float); units=degrees] (min, max) ra range
+    range_dec = [(float, float); units=degrees] (min, max) dec range
+    '''
+    import pandas
+    # read the file into a pandas dataframe
+    con = pandas.read_table(file_in,delimiter=' ',header=None)
+    
+    # mask based on range_ra
+    mask_con_ra = numpy.logical_and(con[1]>range_ra[0],con[1]<range_ra[1])
+    mask_con_dec = numpy.logical_and(con[2]>range_dec[0],con[2]<range_dec[1])
+    mask_con_range = numpy.logical_and(mask_con_ra,mask_con_dec)    
+    # create a null mask since some of these are needed to keep the contours
+    # from all being tied together
+    mask_nan = con[1].isnull()
+    # combine the two masks
+    mask_con = numpy.logical_or(mask_con_range,mask_nan)
+    con_masked = con[mask_con]
+    
+    # due to formatting issues this pandas dataframe can't simply be written
+    # using .to_csv
+    array_ra = numpy.array(con_masked[1])
+    array_dec = numpy.array(con_masked[2])
+    F = open(file_out,'w')
+    nanrow = True # a flag to see if
+    for i in numpy.arange(numpy.shape(con_masked)[0]):
+        if numpy.isnan(array_ra[i]) and nanrow:
+            # then this nan row was preceeded by a nan row or is the first row
+            # that is also a nan row and shouldn't be written
+            continue
+        elif numpy.isnan(array_ra[i]):
+            # then this is the first nan row in a series, write a blank line
+            F.write('\n')
+            nanrow = True
+        else:
+            # reset the nanrow switch
+            nanrow = False
+            # write the coordinates to the file
+            F.write(' {0:1.8e} {1:1.8e} \n'.format(array_ra[i],array_dec[i]))
+    F.close()
+    
+    
+    
+    
+    
+
+
 ##debug
 #fitsname = '/Users/dawson/Documents/Research/Filaments/StackWL/5to10a1_wNden_Nden.fits'
 #regname = '/Users/dawson/Documents/Research/Filaments/StackWL/temp.reg'
