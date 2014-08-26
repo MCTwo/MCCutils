@@ -613,24 +613,24 @@ def cropcontours(file_in, file_out, range_ra, range_dec):
     # read the file into a pandas dataframe
     con = pandas.read_table(file_in,delimiter=' ',header=None)
     
-    # mask based on range_ra
-    mask_con_ra = numpy.logical_and(con[1]>range_ra[0],con[1]<range_ra[1])
-    mask_con_dec = numpy.logical_and(con[2]>range_dec[0],con[2]<range_dec[1])
-    mask_con_range = numpy.logical_and(mask_con_ra,mask_con_dec)    
-    # create a null mask since some of these are needed to keep the contours
-    # from all being tied together
-    mask_nan = con[1].isnull()
-    # combine the two masks
-    mask_con = numpy.logical_or(mask_con_range,mask_nan)
-    con_masked = con[mask_con]
+    # Find all values that are outside the range_ra and range_dec
+    mask_con_ra = numpy.logical_or(con[1]<range_ra[0],con[1]>range_ra[1])
+    mask_con_dec = numpy.logical_or(con[2]<range_dec[0],con[2]>range_dec[1])
+    mask_con_range = numpy.logical_or(mask_con_ra,mask_con_dec)    
+    # Convert the values outside the crop bounds into nulls.
+    # This is a necessary process, rather than masking, so that all the 
+    # contours do not get connected together, and so that the the ends of 
+    # cropped contours do not get connected
+    con[1][mask_con_range] = numpy.nan
+    con[2][mask_con_range] = numpy.nan
     
     # due to formatting issues this pandas dataframe can't simply be written
     # using .to_csv
-    array_ra = numpy.array(con_masked[1])
-    array_dec = numpy.array(con_masked[2])
+    array_ra = numpy.array(con[1])
+    array_dec = numpy.array(con[2])
     F = open(file_out,'w')
     nanrow = True # a flag to see if
-    for i in numpy.arange(numpy.shape(con_masked)[0]):
+    for i in numpy.arange(numpy.shape(con)[0]):
         if numpy.isnan(array_ra[i]) and nanrow:
             # then this nan row was preceeded by a nan row or is the first row
             # that is also a nan row and shouldn't be written
