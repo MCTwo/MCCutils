@@ -6,6 +6,8 @@ import numpy
 import pylab
 import pyfits
 import sys
+import matplotlib.cm as cm
+import matplotlib.colors
 
 def readregions(regfile):
     '''
@@ -514,6 +516,37 @@ def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None)
     for i in numpy.arange(numpy.size(ra)):
         if objid!=None:
             F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4} text='.format(ra[i],dec[i],style,size,color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
+        else:
+            F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4}\n'.format(ra[i],dec[i],style,size,color))
+    F.close()
+
+    
+def pointregions_scale(prefix,ra,dec,z,colormap=cm.jet,style='diamond',size=11,
+                       label=True):
+    '''
+    Creates a ds9.reg file where each object input is represented by a point.
+    The points are assigned a color based on z and the specified colormap.
+    prefix = [string] the prefix associated with the output file
+    ra = [1D array of floats; units = degrees] RA of the objects
+    dec = [1D array of floats; units=degrees] Dec of the objects
+    z = [1D array of floats] Some scaler to determine the color of the point
+       based on the specified colormap.
+    style = ['arrow', 'box', 'boxcircle', 'circle', 'cross', 'diamond', 'x']
+       the shape of the points
+    colormap = a matplotlib.cm
+    size = [integer; units=pixels] the size of the point
+    label = [True or False] will label the points according to their z value
+    '''
+    outputname = prefix+'_points.reg'
+    #normalize the scalar
+    z_norm = (z-numpy.min(z))/numpy.max(z-numpy.min(z))
+    F = open(outputname,'w')
+    F.write('global color=green dashlist=8 3 width=1 font="helvetica 10 normal" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1'+'\n')
+    F.write('fk5'+'\n')
+    for i in numpy.arange(numpy.size(ra)):
+        color = matplotlib.colors.rgb2hex(colormap(z_norm[i]))
+        if label:
+            F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4} text='.format(ra[i],dec[i],style,size,color)+'{'+'{0:0.2f}'.format(z[i])+'}\n')
         else:
             F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4}\n'.format(ra[i],dec[i],style,size,color))
     F.close()
