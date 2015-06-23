@@ -644,7 +644,8 @@ def cropcontours(file_in, file_out, range_ra, range_dec):
     '''
     import pandas
     # read the file into a pandas dataframe
-    con = pandas.read_table(file_in,delimiter=' ',header=None)
+    con = pandas.read_table(file_in,delimiter=' ', header=None,
+                            skip_blank_lines=False)
     
     # Find all values that are outside the range_ra and range_dec
     mask_con_ra = numpy.logical_or(con[1]<range_ra[0],con[1]>range_ra[1])
@@ -732,3 +733,10 @@ def cropcontours(file_in, file_out, range_ra, range_dec):
 #pixscale_sub = 0.2
 #size = size*pixscale_sub
 #ellipseregions(prefix,ra,dec,e1,e2,size,color='magenta')
+
+# debug cropcontours()
+confile = '/Users/dawson/Git/Toothbrush-Dynamics-Paper/RedshiftAnalysis/TB_radio_GMRT610_debug.con'
+outfile = 'temp.con'
+ra_range = (90.604923243686727, 91.055076756313269)
+dec_range = (42.060555333333333, 42.393888666666662)
+cropcontours(file_in=confile, file_out=outfile, range_ra=ra_range, range_dec=dec_range)
