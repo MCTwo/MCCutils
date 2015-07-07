@@ -13,18 +13,18 @@ def readregions(regfile):
     '''
     regfile = (string) the ds9 region file, assumes that it was written using
               'ds9' Format and 'image' Coordinate System
-              
+
     Currently this function only works on circles, ellipse, and box regions
     '''
     # find all the circle regions
     circ = numpy.fromregex(regfile,r"circle\(([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+)",[('xc',numpy.float),('yc',numpy.float),('rc',numpy.float)])
-    
+
     # find all the elliptical regions
     ellip = numpy.fromregex(regfile,r"ellipse\(([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+)",[('xc',numpy.float),('yc',numpy.float),('a',numpy.float),('b',numpy.float),('angle',numpy.float)])
-    
+
     # find all the box regions
     box = numpy.fromregex(regfile,r"box\(([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+),([0-9]*\.?[0-9]+)",[('xc',numpy.float),('yc',numpy.float),('width',numpy.float),('height',numpy.float),('angle',numpy.float)])
-    
+
     return circ, ellip, box
 
 
@@ -84,7 +84,7 @@ def regcount(fitsfile,regfile,cubeindex=None):
                 input should be None.  If the fist file contains a Data Cube
                 (i.e. various bundeled fits files then this input specifies
                 which fits file of the Data Cube to operate on. Note that the
-                first fits file of the Data Cube is cubeindex = 1. 
+                first fits file of the Data Cube is cubeindex = 1.
     '''
     # import the fits file data
     hdulist = pyfits.open(fitsfile)
@@ -104,15 +104,15 @@ def regcount(fitsfile,regfile,cubeindex=None):
         y_ext = numpy.shape(img)[0]
     elif N_axes == 2:
         x_ext = numpy.shape(img)[1]
-        y_ext = numpy.shape(img)[0]                   
+        y_ext = numpy.shape(img)[0]
     x_range = numpy.arange(x_ext)
     y_range = numpy.arange(y_ext)
     # Create the mesh grid that will define the coordinates of the pixels
     X,Y = pylab.meshgrid(x_range,y_range)
-    
+
     # Read in all the region properties
     circ, ellip, box = readregions(regfile)
-    
+
     # Sum pixel counts in all circle regions
     if numpy.shape(circ)[0] != 0:
         print '{0} == {1} in {2}'.format('Circle Region', 'Counts', 'Pixels')
@@ -124,7 +124,7 @@ def regcount(fitsfile,regfile,cubeindex=None):
                 count = numpy.sum(img[cubeindex,mask])
             pixels = numpy.sum(mask)
             print '{0:3} == {1:10} in {2:10}'.format(i,count,pixels)
-    # Sum pixel counts in all Elliptical regions      
+    # Sum pixel counts in all Elliptical regions
     if numpy.shape(ellip)[0] != 0:
         print '{0} == {1} in {2}'.format('Ellipse Region', 'Counts', 'Pixels')
         for i in numpy.arange(numpy.shape(ellip)[0]):
@@ -135,7 +135,7 @@ def regcount(fitsfile,regfile,cubeindex=None):
                 count = numpy.sum(img[cubeindex,mask])
             pixels = numpy.sum(mask)
             print '{0:3} == {1:10} in {2:10}'.format(i,count,pixels)
-    # Sum pixel counts in all Box regions      
+    # Sum pixel counts in all Box regions
     if numpy.shape(box)[0] != 0:
         print '{0} == {1} in {2}'.format('Box Region', 'Counts', 'Pixels')
         for i in numpy.arange(numpy.shape(box)[0]):
@@ -146,7 +146,7 @@ def regcount(fitsfile,regfile,cubeindex=None):
                 count = numpy.sum(img[cubeindex,mask])
             pixels = numpy.sum(mask)
             print '{0:3} == {1:10} in {2:10}'.format(i,count,pixels)
-            
+
 def regcenter(fitsfile,regfile,cubeindex=None):
     '''
     Calcluates the centroid and error on the centroid within the ds9 regions.
@@ -158,7 +158,7 @@ def regcenter(fitsfile,regfile,cubeindex=None):
                 input should be None.  If the fist file contains a Data Cube
                 (i.e. various bundeled fits files then this input specifies
                 which fits file of the Data Cube to operate on. Note that the
-                first fits file of the Data Cube is cubeindex = 1. 
+                first fits file of the Data Cube is cubeindex = 1.
     '''
     def centcalc(img,X,Y):
         '''
@@ -178,7 +178,7 @@ def regcenter(fitsfile,regfile,cubeindex=None):
         sigma_c_x = numpy.sqrt(numpy.sum(numpy.abs(X)*(img-mu)**2)/N_pix)
         sigma_c_y = numpy.sqrt(numpy.sum(numpy.abs(Y)*(img-mu)**2)/N_pix)
         return c_x, sigma_c_x, c_y, sigma_c_y
-        
+
     # import the fits file data
     hdulist = pyfits.open(fitsfile)
     img = hdulist[0].data
@@ -197,15 +197,15 @@ def regcenter(fitsfile,regfile,cubeindex=None):
         y_ext = numpy.shape(img)[0]
     elif N_axes == 2:
         x_ext = numpy.shape(img)[1]
-        y_ext = numpy.shape(img)[0]                   
+        y_ext = numpy.shape(img)[0]
     x_range = numpy.arange(x_ext)
     y_range = numpy.arange(y_ext)
     # Create the mesh grid that will define the coordinates of the pixels
     X,Y = pylab.meshgrid(x_range,y_range)
-    
+
     # Read in all the region properties
     circ, ellip, box = readregions(regfile)
-    
+
     # Sum pixel counts in all circle regions
     if numpy.shape(circ)[0] != 0:
         print '{0} == {1} ; {2}'.format('Circle Region', 'x centroid', 'y centroid')
@@ -217,7 +217,7 @@ def regcenter(fitsfile,regfile,cubeindex=None):
                 img_tmp = img[cubeindex,mask]
             c_x, sigma_c_x, c_y, sigma_c_y = centcalc(img_tmp,X[mask],Y[mask])
             print '{0:3} == {1:0.2f}+/-{2:0.2f} ; {3:0.2f}+/-{4:0.2f}'.format(i,c_x,sigma_c_x,c_y,sigma_c_y)
-    # Sum pixel counts in all Elliptical regions      
+    # Sum pixel counts in all Elliptical regions
     if numpy.shape(ellip)[0] != 0:
         print '{0} == {1} ; {2}'.format('Ellipse Region', 'x centroid', 'y centroid')
         for i in numpy.arange(numpy.shape(ellip)[0]):
@@ -228,7 +228,7 @@ def regcenter(fitsfile,regfile,cubeindex=None):
                 img_tmp = img[cubeindex,mask]
             c_x, sigma_c_x, c_y, sigma_c_y = centcalc(img_tmp,X[mask],Y[mask])
             print '{0:3} == {1:0.2f}+/-{2:0.2f} ; {3:0.2f}+/-{4:0.2f}'.format(i,c_x,sigma_c_x,c_y,sigma_c_y)
-    # Sum pixel counts in all Box regions      
+    # Sum pixel counts in all Box regions
     if numpy.shape(box)[0] != 0:
         print '{0} == {1} ; {2}'.format('Box Region', 'x centroid', 'y centroid')
         for i in numpy.arange(numpy.shape(box)[0]):
@@ -251,7 +251,7 @@ def regminmax(fitsfile,regfile,cubeindex=None):
                 input should be None.  If the fist file contains a Data Cube
                 (i.e. various bundeled fits files then this input specifies
                 which fits file of the Data Cube to operate on. Note that the
-                first fits file of the Data Cube is cubeindex = 1. 
+                first fits file of the Data Cube is cubeindex = 1.
     '''
     def minmax(img,X,Y):
         '''
@@ -267,8 +267,8 @@ def regminmax(fitsfile,regfile,cubeindex=None):
         y_max = Y[max_id]+1
         x_min = X[min_id]+1
         y_min = Y[min_id]+1
-        return min_value,x_min,y_min, max_value,x_max,y_max 
-        
+        return min_value,x_min,y_min, max_value,x_max,y_max
+
     # import the fits file data
     hdulist = pyfits.open(fitsfile)
     img = hdulist[0].data
@@ -287,15 +287,15 @@ def regminmax(fitsfile,regfile,cubeindex=None):
         y_ext = numpy.shape(img)[0]
     elif N_axes == 2:
         x_ext = numpy.shape(img)[1]
-        y_ext = numpy.shape(img)[0]                   
+        y_ext = numpy.shape(img)[0]
     x_range = numpy.arange(x_ext)
     y_range = numpy.arange(y_ext)
     # Create the mesh grid that will define the coordinates of the pixels
     X,Y = pylab.meshgrid(x_range,y_range)
-    
+
     # Read in all the region properties
     circ, ellip, box = readregions(regfile)
-    
+
     # Sum pixel counts in all circle regions
     if numpy.shape(circ)[0] != 0:
         print 'Circle Regions'
@@ -310,7 +310,7 @@ def regminmax(fitsfile,regfile,cubeindex=None):
             print 'Region {0}'.format(i)
             print 'min = {0} @ ({1}, {2})'.format(min_value,x_min,y_min)
             print 'max = {0} @ ({1}, {2})'.format(max_value,x_max,y_max)
-    # Sum pixel counts in all Elliptical regions      
+    # Sum pixel counts in all Elliptical regions
     if numpy.shape(ellip)[0] != 0:
         print 'Ellipse Regions'
         print 'min/max = value @ (x, y)'
@@ -324,7 +324,7 @@ def regminmax(fitsfile,regfile,cubeindex=None):
             print 'Region {0}'.format(i)
             print 'min = {0} @ ({1}, {2})'.format(min_value,x_min,y_min)
             print 'max = {0} @ ({1}, {2})'.format(max_value,x_max,y_max)
-    # Sum pixel counts in all Box regions      
+    # Sum pixel counts in all Box regions
     if numpy.shape(box)[0] != 0:
         print 'Box Regions'
         print 'min/max = value @ (x, y)'
@@ -339,13 +339,13 @@ def regminmax(fitsfile,regfile,cubeindex=None):
             print 'min = {0} @ ({1}, {2})'.format(min_value,x_min,y_min)
             print 'max = {0} @ ({1}, {2})'.format(max_value,x_max,y_max)
 
-            
+
 def makemaskfits(regfile,fitsout,naxis1,naxis2,binfactor=1,crval1=None,
                  crval2=None,crpix1=None,crpix2=None,cd1_1=None,cd1_2=None,cd2_1=None,cd2_2=None,comment=None):
     '''
     This function creates a fits file that represents masked and unmasked
     regions with pixel values of 0 and 1 respectively.
-    
+
     Input:
     regfile = [string] file name of the region file that contains regions for
               masked areas. Regions should be defined in image coordinates.
@@ -353,7 +353,7 @@ def makemaskfits(regfile,fitsout,naxis1,naxis2,binfactor=1,crval1=None,
     naxis1 = number of x pixels for the image corresponding to the regfile
     naxis2 = number of y pixels for the image corresponding to the regfile
     binfactor = [integer] the factor by which to bin the pixels for the fitsout
-                file. e.g.: if naxis1 = 100 and binfactor = 2 then the fitsout 
+                file. e.g.: if naxis1 = 100 and binfactor = 2 then the fitsout
                 file will be an image with 50 pixels along the x-axis
     c_____ = elements of the WCS center and CD matrix for the image
              corresponding to the regfile. The binfactor parameter will be used
@@ -363,16 +363,16 @@ def makemaskfits(regfile,fitsout,naxis1,naxis2,binfactor=1,crval1=None,
     '''
     # Read in all the region properties
     circ, ellip, box = readregions(regfile)
-    
+
     # Create the coordinate array
     xbins = naxis1//binfactor
     ybins = naxis2//binfactor
     xarray = numpy.arange(xbins)
     yarray = numpy.arange(ybins)
     X, Y = numpy.meshgrid(xarray,yarray)
-    
+
     ###
-    ### Create the mask array    
+    ### Create the mask array
     ###
     # circle regions
     mask_circ = numpy.zeros(numpy.shape(X))
@@ -428,7 +428,7 @@ def makemaskfits(regfile,fitsout,naxis1,naxis2,binfactor=1,crval1=None,
             yc = (box[i][1]-1)/binfactor
             xw = box[i][2]/binfactor
             yw = box[i][3]/binfactor
-            
+
             #// by 1 to make valid index. Add a 100% buffer to the radius to
             #make sure that we don't round down to inside the mask radius
             x0 = (xc-xw)//1
@@ -446,29 +446,29 @@ def makemaskfits(regfile,fitsout,naxis1,naxis2,binfactor=1,crval1=None,
             mask_xmin = X[y0:y1,x0:x1]-xc >= -xw/2
             mask_ymax = Y[y0:y1,x0:x1]-yc <= yw/2
             mask_ymin = Y[y0:y1,x0:x1]-yc >= -yw/2
-            
+
             #mask_xmax = (X+1)-box[i][0]/binfactor <= box[i][2]/2.0/binfactor
             #mask_xmin = (X+1)-box[i][0]/binfactor >= -box[i][2]/2.0/binfactor
             #mask_ymax = (Y+1)-box[i][1]/binfactor <= box[i][3]/2.0/binfactor
             #mask_ymin = (Y+1)-box[i][1]/binfactor >= -box[i][3]/2.0/binfactor
-            
+
             mask_temp[y0:y1,x0:x1] = mask_xmin*mask_xmax*mask_ymin*mask_ymax
             mask_box += mask_temp
-    
+
     mask = mask_circ+mask_ellip+mask_box
 
     #bin the mask array by the binfator
     X_flat = numpy.reshape(X,(xbins*ybins,))
     Y_flat = numpy.reshape(Y,(xbins*ybins,))
     mask_flat = numpy.reshape(mask,(xbins*ybins,))
-    
+
     mask_binned, xedges, yedges = numpy.histogram2d(Y_flat,X_flat,bins = (ybins,xbins),weights=mask_flat)
     #note that we reversed the order of the x,y to match fits indexing
-    
+
     # Create the image array
     map_array = mask_binned == 0
     map_array = map_array*1.0 #convert bol to float for fits file
-    
+
     # Create the fits file
     hdu = pyfits.PrimaryHDU(map_array)
     history = 'This fits file was generate by makemaskfits in ds9tools.py using the following inputs: makemaskfits(regfile={0},fitsout={1},naxis1={2},naxis2={3},binfactor={4},crval1={5},crval2={6},crpix1={7},crpix2={8},cd1_1={9},cd1_2={10},cd2_1={11},cd2_2={12},comment={13}'.format(regfile,fitsout,naxis1,naxis2,binfactor,crval1,crval2,crpix1,crpix2,cd1_1,cd1_2,cd2_1,cd2_2,comment)
@@ -492,8 +492,8 @@ def makemaskfits(regfile,fitsout,naxis1,naxis2,binfactor=1,crval1=None,
             #print 'The header of the output fits file is as follows:'
             #print hdu.header.ascardlist()
     hdu.writeto(fitsout,clobber=True)
-    
-    
+
+
 
 def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None):
     '''
@@ -503,7 +503,7 @@ def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None)
     dec = [1D array of floats; units=degrees] Dec of the objects
     style = ['arrow', 'box', 'boxcircle', 'circle', 'cross', 'diamond', 'x']
        the shape of the points
-    color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta', 
+    color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta',
        'yellow'] color of the point
     size = [integer; units=pixels] the size of the point
     objid = [array of integers] the object id of each object, will be added to
@@ -520,7 +520,7 @@ def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None)
             F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4}\n'.format(ra[i],dec[i],style,size,color))
     F.close()
 
-    
+
 def pointregions_scale(prefix,ra,dec,z,colormap=cm.jet,style='diamond',size=11,
                        label=True):
     '''
@@ -550,7 +550,7 @@ def pointregions_scale(prefix,ra,dec,z,colormap=cm.jet,style='diamond',size=11,
         else:
             F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4}\n'.format(ra[i],dec[i],style,size,color))
     F.close()
-    
+
 def circleregions(prefix,ra,dec,radius,color='green',objid=None):
     '''
     Creates a ds9.reg file where each object input is represented by a circle.
@@ -558,7 +558,7 @@ def circleregions(prefix,ra,dec,radius,color='green',objid=None):
     ra = [1D array of floats; units = degrees] RA of the objects
     dec = [1D array of floats; units=degrees] Dec of the objects
     radius = [1D array of floats; units=arcsec] Radius of the circle
-    color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta', 
+    color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta',
        'yellow'] color of the point
     size = [integer; units=pixels] the size of the point
     objid = [array of integers] the object id of each object, will be added to
@@ -586,9 +586,9 @@ def ellipseregions(prefix,ra,dec,e1,e2,radius,color='green',objid=None,cd=((-1,0
        assumed that ra and dec axes are orientated such that +x=-RA and +y=+Dec
        unless a cd matrix is input, otherwise the cd option should be specified
     e2 = [1D array of floats] e2 ellipticity component.
-    radius = [1D array of floats; units=arcsec] Radius of the object, e.g. FWHM 
+    radius = [1D array of floats; units=arcsec] Radius of the object, e.g. FWHM
        in units of arcsec.
-    color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta', 
+    color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta',
        'yellow'] color of the point
     size = [integer; units=pixels] the size of the point
     objid = [array of integers] the object id of each object, will be added to
@@ -611,14 +611,14 @@ def ellipseregions(prefix,ra,dec,e1,e2,radius,color='green',objid=None,cd=((-1,0
     # Calculate the position angle of the ellipse
     phi = numpy.arctan2(e2_wcs,e1_wcs)*180/numpy.pi
     phi /= 2.
-    
+
     # Calculate the size of the ellipse components
     # calculate the ellipticity magnitude
     e_mag = numpy.sqrt(e1_wcs**2+e2_wcs**2)
     # calculate a and b for the ellipse
     a = radius*(1+e_mag)
     b = radius*(1-e_mag)
-    
+
     # Save the ellipses to file
     outputname = prefix+'_ellipses.reg'
     F = open(outputname,'w')
@@ -636,7 +636,7 @@ def cropcontours(file_in, file_out, range_ra, range_dec):
     '''
     Will crop contours in a ds9 .con file to specified the ra and dec range.
     Input:
-    file_in = [string], the path/name of the input ds9 contour file, should be 
+    file_in = [string], the path/name of the input ds9 contour file, should be
         saved using WCS degree options
     file_out = [string], the path/name of the cropped ds9 contour file
     range_ra = [(float, float); units=degrees] (min, max) ra range
@@ -646,18 +646,18 @@ def cropcontours(file_in, file_out, range_ra, range_dec):
     # read the file into a pandas dataframe
     con = pandas.read_table(file_in,delimiter=' ', header=None,
                             skip_blank_lines=False)
-    
+
     # Find all values that are outside the range_ra and range_dec
     mask_con_ra = numpy.logical_or(con[1]<range_ra[0],con[1]>range_ra[1])
     mask_con_dec = numpy.logical_or(con[2]<range_dec[0],con[2]>range_dec[1])
-    mask_con_range = numpy.logical_or(mask_con_ra,mask_con_dec)    
+    mask_con_range = numpy.logical_or(mask_con_ra,mask_con_dec)
     # Convert the values outside the crop bounds into nulls.
-    # This is a necessary process, rather than masking, so that all the 
-    # contours do not get connected together, and so that the the ends of 
+    # This is a necessary process, rather than masking, so that all the
+    # contours do not get connected together, and so that the the ends of
     # cropped contours do not get connected
     con[1][mask_con_range] = numpy.nan
     con[2][mask_con_range] = numpy.nan
-    
+
     # due to formatting issues this pandas dataframe can't simply be written
     # using .to_csv
     array_ra = numpy.array(con[1])
@@ -679,11 +679,11 @@ def cropcontours(file_in, file_out, range_ra, range_dec):
             # write the coordinates to the file
             F.write(' {0:1.8e} {1:1.8e} \n'.format(array_ra[i],array_dec[i]))
     F.close()
-    
-    
-    
-    
-    
+
+
+
+
+
 
 
 ##debug
@@ -734,9 +734,9 @@ def cropcontours(file_in, file_out, range_ra, range_dec):
 #size = size*pixscale_sub
 #ellipseregions(prefix,ra,dec,e1,e2,size,color='magenta')
 
-# debug cropcontours()
-confile = '/Users/dawson/Git/Toothbrush-Dynamics-Paper/RedshiftAnalysis/TB_radio_GMRT610_debug.con'
-outfile = 'temp.con'
-ra_range = (90.604923243686727, 91.055076756313269)
-dec_range = (42.060555333333333, 42.393888666666662)
-cropcontours(file_in=confile, file_out=outfile, range_ra=ra_range, range_dec=dec_range)
+# # debug cropcontours()
+# confile = '/Users/dawson/Git/Toothbrush-Dynamics-Paper/RedshiftAnalysis/TB_radio_GMRT610_debug.con'
+# outfile = 'temp.con'
+# ra_range = (90.604923243686727, 91.055076756313269)
+# dec_range = (42.060555333333333, 42.393888666666662)
+# cropcontours(file_in=confile, file_out=outfile, range_ra=ra_range, range_dec=dec_range)
