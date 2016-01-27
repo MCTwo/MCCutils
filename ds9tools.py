@@ -495,7 +495,8 @@ def makemaskfits(regfile,fitsout,naxis1,naxis2,binfactor=1,crval1=None,
 
 
 
-def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None):
+def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None,
+                 wcs=True):
     '''
     Creates a ds9.reg file where each object input is represented by a point.
     prefix = [string] the prefix associated with the output file
@@ -508,11 +509,16 @@ def pointregions(prefix,ra,dec,style='diamond',color='green',size=11,objid=None)
     size = [integer; units=pixels] the size of the point
     objid = [array of integers] the object id of each object, will be added to
        the text portion of each point
+    wcs = [True or False] if True than ra and dec should be input as degrees,
+       else they should be input with image pixel coordinates
     '''
     outputname = prefix+'_points.reg'
     F = open(outputname,'w')
     F.write('global color=green dashlist=8 3 width=1 font="helvetica 10 normal" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1'+'\n')
-    F.write('fk5'+'\n')
+    if wcs:
+        F.write('fk5'+'\n')
+    else:
+        F.write('image'+'\n')
     for i in numpy.arange(numpy.size(ra)):
         if objid!=None:
             F.write('point({0:1.5f},{1:1.5f}) # point={2} {3} color={4} text='.format(ra[i],dec[i],style,size,color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
