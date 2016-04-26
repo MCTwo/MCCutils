@@ -475,7 +475,7 @@ def deg2ra(ra,sep=" "):
                 sep1 = sep
                 sep2 = sep
                 sep3 = ""
-        return "%02d%s%02d%s%06.3f%s" % (h,sep1,m,sep2,s,sep3)
+        return "%02d%s%02d%s%04.2f%s" % (h,sep1,m,sep2,s,sep3)
 
 # Convert decimal declination to DaMaS format
 def deg2dec(dec,sep=" ",addsign=False):
@@ -498,10 +498,10 @@ def deg2dec(dec,sep=" ",addsign=False):
                 sep2 = sep
                 sep3 = ""
         if sign==-1:
-                return "-%02d%s%02d%s%06.3f%s" % (d,sep1,m,sep2,s,sep3)
+                return "-%02d%s%02d%s%03.1f%s" % (d,sep1,m,sep2,s,sep3)
 	if addsign:
-		return "+%02d%s%02d%s%06.3f%s" % (d,sep1,m,sep2,s,sep3)
-        return "%02d%s%02d%s%06.3f%s" % (d,sep1,m,sep2,s,sep3)
+		return "+%02d%s%02d%s%03.1f%s" % (d,sep1,m,sep2,s,sep3)
+        return "%02d%s%02d%s%03.1f%s" % (d,sep1,m,sep2,s,sep3)
 
 def addwcs(fitsfile,option,parentfits=None,ra_bounds=None,dec_bounds=None,
            unitcd=None,wcscards=None):
