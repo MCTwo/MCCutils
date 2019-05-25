@@ -621,7 +621,7 @@ def addwcs(fitsfile, option, parentfits=None, ra_bounds=None, dec_bounds=None,
         cd2_1 = pcd2_1 / pixscale1
         cd2_2 = pcd2_2 / pixscale2
     elif option == 'bounds':
-        if ra_bounds is None or dec_boundsis None or unitcd is None:
+        if ra_bounds is None or dec_bounds is None or unitcd is None:
             print("addwcs: ra_bounds, dec_bounds, and unitcd must be specified if option=='bounds', exiting")
             sys.exit()
         ra_min = ra_bounds[0]
