@@ -581,19 +581,21 @@ def circleregions(prefix,ra,dec,radius,color='green',objid=None):
             F.write('circle({0:1.5f},{1:1.5f},{2:1.2f}") # color={3}\n'.format(ra[i],dec[i],radius[i],color))
     F.close()
 
-def ellipseregions(prefix,ra,dec,e1,e2,radius,color='green',objid=None,cd=((-1,0),(0,1))):
+def ellipseregions(prefix,ra,dec,e1,e2,radius,color='green',objid=None,cd=((-1,0),(0,1)),wcs=True):
     '''
     Creates a ds9.reg file where each object input is represented by a circle.
     prefix = [string] the prefix associated with the output file
-    ra = [1D array of floats; units = degrees] RA of the objects
-    dec = [1D array of floats; units=degrees] Dec of the objects
+    ra = [1D array of floats; units = degrees or pixels] RA of the objects, if
+       wcs=True then it is assumed the units are degrees, else pixels.
+    dec = [1D array of floats; units = degrees or pixels] Dec of the objects, if
+       wcs=True then it is assumed the units are degrees, else pixels.
     e1 = [1D array of floats] e1 ellipticity component. Ellipticities should
        be defined with respect to the standard x,y coordinate system and it is
        assumed that ra and dec axes are orientated such that +x=-RA and +y=+Dec
        unless a cd matrix is input, otherwise the cd option should be specified
     e2 = [1D array of floats] e2 ellipticity component.
-    radius = [1D array of floats; units=arcsec] Radius of the object, e.g. FWHM
-       in units of arcsec.
+    radius = [1D array of floats; units=arcsec or pixels] Radius of the object,
+       e.g. FWHM in units of arcsec if wcs=True, else pixels.
     color = ['black', 'white', 'red' , 'green', 'blue', 'cyan', 'magenta',
        'yellow'] color of the point
     size = [integer; units=pixels] the size of the point
@@ -605,7 +607,8 @@ def ellipseregions(prefix,ra,dec,e1,e2,radius,color='green',objid=None,cd=((-1,0
          that [[x];[y]] = [[CD_11, CD_12];[CD_21, CD_22]] [[RA]; [Dec]]. For the
          purposes of this program the pixel scale is not important as we are
          only after the respective orientation of the two coordinates.
-
+    wcs = [True or False] if True than ra and dec should be input as degrees,
+         else they should be input with image pixel coordinates
     '''
     # Convert the ellipticity components to the reference RA,Dec frame
     cd = numpy.array(cd)
@@ -629,12 +632,20 @@ def ellipseregions(prefix,ra,dec,e1,e2,radius,color='green',objid=None,cd=((-1,0
     outputname = prefix+'_ellipses.reg'
     F = open(outputname,'w')
     F.write('global color=green dashlist=8 3 width=1 font="helvetica 10 normal" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1'+'\n')
-    F.write('fk5'+'\n')
-    for i in numpy.arange(numpy.size(ra)):
-        if objid!=None:
-            F.write('ellipse({0:1.5f},{1:1.5f},{2:1.3f}",{3:1.3f}",{4:1.1f}) # color={5} text='.format(ra[i],dec[i],a[i],b[i],phi[i],color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
-        else:
-            F.write('ellipse({0:1.5f},{1:1.5f},{2:1.3f}",{3:1.3f}",{4:1.1f}) # color={5}\n'.format(ra[i],dec[i],a[i],b[i],phi[i],color))
+    if wcs:
+        F.write('fk5'+'\n')
+        for i in numpy.arange(numpy.size(ra)):
+            if objid!=None:
+                F.write('ellipse({0:1.5f},{1:1.5f},{2:1.3f}",{3:1.3f}",{4:1.1f}) # color={5} text='.format(ra[i],dec[i],a[i],b[i],phi[i],color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
+            else:
+                F.write('ellipse({0:1.5f},{1:1.5f},{2:1.3f}",{3:1.3f}",{4:1.1f}) # color={5}\n'.format(ra[i],dec[i],a[i],b[i],phi[i],color))
+    else:
+        F.write('image'+'\n')
+        for i in numpy.arange(numpy.size(ra)):
+            if objid!=None:
+                F.write('ellipse({0:1.5f},{1:1.5f},{2:1.3f},{3:1.3f},{4:1.1f}) # color={5} text='.format(ra[i],dec[i],a[i],b[i],phi[i],color)+'{'+'{0:0.2f}'.format(objid[i])+'}\n')
+            else:
+                F.write('ellipse({0:1.5f},{1:1.5f},{2:1.3f},{3:1.3f},{4:1.1f}) # color={5}\n'.format(ra[i],dec[i],a[i],b[i],phi[i],color))
     F.close()
     print 'Finished making ellipse regions.'
 
