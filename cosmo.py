@@ -41,7 +41,7 @@ def Dl(z,h=0.7,Om=0.3,Ol=0.7):
     Returns the cosmological luminosity distance (in units of Mpc)
     """
     return Da(z,h,Om,Ol)*(1+z)**2
-    
+
 def ProjectedLength(z,h=0.7,Om=0.3,Ol=0.7):
     """
     Usage: ProjectedLength(z,h=0.7,Om=0.3,Ol=0.7)
@@ -70,12 +70,12 @@ def lensgeo(zl,zs,h=0.7,Om=0.3,Ol=0.7):
     else:
         f0l = scipy.integrate.quad(lambda x: chi(x,Om,Ol),0,zl)[0]
         f0s = scipy.integrate.quad(lambda x: chi(x,Om,Ol),0,zs)[0]
-        
+
         ds = c/(100.0*h)/(1+zs)*f0s # distance to source
         dl = c/(100.0*h)/(1+zl)*f0l # distance to lens
         dls = c/(100.0*h)/(1+zs)*(f0s-f0l) # distance between lens and source
-        
-        sigcr = c**2/(4*numpy.pi*G)*ds/(dl*dls)*1000/kminMpc 
+
+        sigcr = c**2/(4*numpy.pi*G)*ds/(dl*dls)*1000/kminMpc
 
         return {'Dl':dl,'Ds':ds,'Dls':dls,'sigcr':sigcr}
 
@@ -110,7 +110,7 @@ def lookbacktime(z,h=0.7,Om=0.3,Ol=0.7):
     Units Gyr
     """
     return age(0,h,Om,Ol) - age(z,h,Om,Ol)
-    
+
 ## These are not producing the correct answer.
 ##def age(z,h=0.7,Om=0.3,Ol=0.7,Or=0):
 ##    """
@@ -174,4 +174,4 @@ def vdisp(m200,z,h=0.7,Om=0.3,Ol=0.7,Or=0,Ok=0):
 
     Returns the velocity dispersion of the mass in km/s.
     '''
-    return 10**(numpy.log10(1080)+0.352*numpy.log10(H(z,h,Om,Ol,Or,Ok)/100.*m200/10^15))
+    return 10**(numpy.log10(1080)+0.352*numpy.log10(H(z,h,Om,Ol,Or,Ok)/100.*m200/10**15))

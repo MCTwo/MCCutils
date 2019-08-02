@@ -3,7 +3,7 @@ astrostats.py is written Will Dawson and contains various statistical functions
 that I have found useful (e.g. the Beers et al. 1990 paper).
 -- On 5/13/2012 I corrected an error in the MAD calculations, it was MAD = numpy.median(numpy.abs(z))
 '''
-from __future__ import division
+
 import numpy
 from scipy.stats import norm
 from scipy.special import erf
@@ -86,7 +86,7 @@ def weightedrand(weights,size=1):
     '''
     # check to make sure that there are no negative weights
     if numpy.sum(weights<0) > 0:
-        print 'weightedrandom: error, negative weights are not allowed, exiting'
+        print('weightedrandom: error, negative weights are not allowed, exiting')
         sys.exit()
     # determine the normalizes cumulative sum of the weight array    
     w_norm = weights/numpy.sum(weights)
